@@ -180,12 +180,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // Submit to Elasticsearch via CORS proxy
             const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
-            const elasticsearchUrl = 'https://search-dataaccess-poc-qqpzqgbji7ciwd5kfunbzlhzbe.us-east-1.es.amazonaws.com/dataaccess/_doc';
+            // Updated Elasticsearch URL
+            const elasticsearchUrl = 'https://my-elasticsearch-project-d2bcb4.es.us-east-1.aws.elastic.cloud:443/pc-data-access-idx-000001/_doc';
+
+            console.log('Sending request to:', proxyUrl + elasticsearchUrl);
 
             fetch(proxyUrl + elasticsearchUrl, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'Authorization': 'ApiKey bFhqM1lKVUJWM0R0WUMtaWNDWHE6aF92MDZfelNqeFM5N1UtMXZuTjVLdw=='
                 },
                 body: JSON.stringify(jsonData)
             })
