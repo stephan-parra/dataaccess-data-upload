@@ -47,11 +47,6 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="short_description" class="required">Short Description</label>
-                    <input type="text" id="short_description" name="short_description" required>
-                </div>
-
-                <div class="form-group">
                     <label for="owner" class="required">Owner</label>
                     <input type="text" id="owner" name="owner" required>
                 </div>
@@ -71,6 +66,10 @@
                     <input type="text" id="tags" name="tags">
                 </div>
 
+                <div class="form-group wide-field">
+                    <label for="short_description" class="required">Short Description</label>
+                    <input type="text" id="short_description" name="short_description" required maxlength="200" placeholder="Enter up to 200 characters">
+                </div>
                 <div class="form-group full-width">
                     <label for="long_description">Long Description</label>
                     <textarea id="long_description" name="long_description"></textarea>
@@ -106,4 +105,6 @@
 </body>
 
 </html>
+
+
 

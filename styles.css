@@ -54,6 +54,7 @@ h1 {
 .full-width {
     grid-column: 1 / -1;
 }
+
 label {
     display: block;
     margin-bottom: 5px;
@@ -66,7 +67,9 @@ label {
     color: #e74c3c;
 }
 
-input, select, textarea {
+input,
+select,
+textarea {
     width: 100%;
     padding: 10px;
     border: 1px solid #ddd;
@@ -148,4 +151,17 @@ button:hover {
     .container {
         padding: 20px;
     }
+}
+
+/* Add this to your existing CSS file */
+.wide-field {
+    grid-column: span 2;
+    /* Makes the field span two columns */
+    width: 100%;
+}
+
+.wide-field input {
+    width: 100%;
+    min-width: 400px;
+    /* Ensures a minimum width */
 }
