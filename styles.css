@@ -171,3 +171,29 @@ label.required::after {
     color: var(--error-color);
     margin-left: 4px;
 }
+
+/* Display field styling */
+.display-field {
+    background-color: transparent;
+    border: none;
+    padding: 0;
+    font-weight: 500;
+    color: var(--text-color);
+    cursor: default;
+    box-shadow: none;
+}
+
+.display-field-container {
+    margin-top: 30px;
+    padding: 15px;
+    background-color: var(--light-gray);
+    border-radius: 4px;
+}
+
+.display-field-container .form-group {
+    margin-bottom: 10px;
+}
+
+.display-field-container label {
+    color: var(--primary-dark);
+}

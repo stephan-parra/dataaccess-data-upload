@@ -37,16 +37,6 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="file_size" class="required">File Size</label>
-                    <input type="text" id="file_size" name="file_size" required readonly>
-                </div>
-
-                <div class="form-group">
-                    <label for="storage_url" class="required">Storage URL</label>
-                    <input type="url" id="storage_url" name="storage_url" required readonly>
-                </div>
-
-                <div class="form-group">
                     <label for="data_api">Data API</label>
                     <input type="url" id="data_api" name="data_api">
                 </div>
@@ -89,6 +79,19 @@
                 <div class="form-group full-width">
                     <label for="long_description">Long Description</label>
                     <textarea id="long_description" name="long_description"></textarea>
+                </div>
+            </div>
+
+            <div class="display-field-container full-width">
+                <h3>File Information</h3>
+                <div class="form-group">
+                    <label for="file_size">File Size</label>
+                    <input type="text" id="file_size" name="file_size" class="display-field" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label for="storage_url">Storage URL</label>
+                    <input type="url" id="storage_url" name="storage_url" class="display-field" readonly>
                 </div>
             </div>
 
