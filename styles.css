@@ -165,3 +165,55 @@ button:hover {
     min-width: 400px;
     /* Ensures a minimum width */
 }
+
+/* File upload area styles */
+.file-upload-container {
+    border: 2px dashed #3498db;
+    border-radius: 6px;
+    padding: 20px;
+    text-align: center;
+    background-color: #f8f9fa;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.file-upload-container:hover, .file-upload-container.dragover {
+    background-color: #e3f2fd;
+    border-color: #2196F3;
+}
+
+.file-upload-container p {
+    margin: 10px 0;
+    color: #666;
+}
+
+.file-upload-container .icon {
+    font-size: 48px;
+    color: #3498db;
+    margin-bottom: 10px;
+}
+
+.file-upload-container .browse-btn {
+    display: inline-block;
+    padding: 8px 16px;
+    background-color: #3498db;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.file-upload-container input[type="file"] {
+    display: none;
+}
+
+.file-info {
+    margin-top: 15px;
+    font-size: 14px;
+}
+
+.file-name {
+    font-weight: 500;
+    word-break: break-all;
+}
