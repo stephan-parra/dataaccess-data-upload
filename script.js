@@ -138,6 +138,7 @@ function formatFileSize(bytes) {
 
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
+
 document.getElementById('dataForm').addEventListener('submit', function (e) {
     e.preventDefault();
 
@@ -155,7 +156,7 @@ document.getElementById('dataForm').addEventListener('submit', function (e) {
         }
     });
 
-    // Format dates properly
+    // Format dates properly for Elasticsearch
     if (data.captured_date) {
         data.captured_date = data.captured_date + 'T00:00:00Z';
     }
@@ -184,50 +185,66 @@ document.getElementById('dataForm').addEventListener('submit', function (e) {
 
     // Add the storage URL to the data object
     data.storage_url = fakeS3Url;
-    // Elasticsearch API endpoint - replace with your actual endpoint
-    const apiUrl = '/api/submit-data'; // Replace with your actual API endpoint
 
-    // Send data to backend
-    fetch(apiUrl, {
+    // Add file name to the data object
+    data.file_name = file.name;
+
+    // Extract file format from file name
+    const fileExtension = file.name.split('.').pop().toLowerCase();
+    data.file_format = fileExtension;
+
+    // Elasticsearch API endpoint
+    const elasticsearchUrl = 'https://my-elasticsearch-project-d2bcb4.es.us-east-1.aws.elastic.cloud:443/pc-data-access-idx-000001/_doc';
+
+    // API Key for authentication
+    const apiKey = 'bFhqM1lKVUJWM0R0WUMtaWNDWHE6aF92MDZfelNqeFM5N1UtMXZuTjVLdw==';
+
+    // Send data to Elasticsearch
+    fetch(elasticsearchUrl, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': `ApiKey ${apiKey}`
         },
         body: JSON.stringify(data)
     })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(result => {
-            displayResponse('success', 'Data successfully submitted!');
-            document.getElementById('dataForm').reset();
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(errorData => {
+                throw new Error(`Elasticsearch error: ${JSON.stringify(errorData)}`);
+            });
+        }
+        return response.json();
+    })
+    .then(result => {
+        console.log('Elasticsearch response:', result);
+        displayResponse('success', 'Data successfully submitted to Elasticsearch!');
+        document.getElementById('dataForm').reset();
 
-            // Reset captured_date to current date after form reset
-            const today = new Date();
-            const year = today.getFullYear();
-            const month = String(today.getMonth() + 1).padStart(2, '0');
-            const day = String(today.getDate()).padStart(2, '0');
-            const formattedDate = `${year}-${month}-${day}`;
-            document.getElementById('captured_date').value = formattedDate;
+        // Reset captured_date to current date after form reset
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        const formattedDate = `${year}-${month}-${day}`;
+        document.getElementById('captured_date').value = formattedDate;
 
-            // Reset upload_date to current date and time
-            const hours = String(today.getHours()).padStart(2, '0');
-            const minutes = String(today.getMinutes()).padStart(2, '0');
-            const seconds = String(today.getSeconds()).padStart(2, '0');
-            const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-            document.getElementById('upload_date').value = formattedDateTime;
+        // Reset upload_date to current date and time
+        const hours = String(today.getHours()).padStart(2, '0');
+        const minutes = String(today.getMinutes()).padStart(2, '0');
+        const seconds = String(today.getSeconds()).padStart(2, '0');
+        const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+        document.getElementById('upload_date').value = formattedDateTime;
 
-            // Clear file upload area
-            document.querySelector('.file-info').style.display = 'none';
-            document.getElementById('file_size').value = '';
-            document.getElementById('storage_url').value = '';
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            displayResponse('error', 'Error submitting data: ' + error.message);
-        });
+        // Clear file upload area
+        document.querySelector('.file-info').style.display = 'none';
+        document.getElementById('file_size').value = '';
+        document.getElementById('storage_url').value = '';
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        displayResponse('error', 'Error submitting data to Elasticsearch: ' + error.message);
+    });
 });
+
 
