@@ -340,4 +340,25 @@ textarea {
     padding: 10px;
     margin-top: 15px;
     background-color: #f8f9fa;
-    border: 1px
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-family: monospace;
+    resize: vertical;
+}
+
+/* Style for validation error message */
+.validation-error {
+    color: var(--error-color);
+    font-size: 14px;
+    margin-top: 5px;
+    display: none;
+}
+
+/* Style for the required polygon field */
+.required-polygon {
+    border: 1px solid #ddd;
+}
+
+.required-polygon.error {
+    border: 1px solid var(--error-color);
+}
