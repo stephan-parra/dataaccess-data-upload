@@ -178,7 +178,8 @@ button:hover {
     margin-top: 10px;
 }
 
-.file-upload-container:hover, .file-upload-container.dragover {
+.file-upload-container:hover,
+.file-upload-container.dragover {
     background-color: #e3f2fd;
     border-color: #2196F3;
 }
@@ -216,4 +217,60 @@ button:hover {
 .file-name {
     font-weight: 500;
     word-break: break-all;
+}
+
+/* Add these styles to your existing CSS file */
+
+/* Two-column layout */
+.two-column-layout {
+    display: flex;
+    gap: 20px;
+    width: 100%;
+}
+
+.form-column {
+    flex: 1;
+    max-width: 60%;
+}
+
+.map-column {
+    flex: 1;
+    min-width: 40%;
+    position: relative;
+}
+
+#map {
+    height: 600px;
+    width: 100%;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Adjust form layout for the narrower column */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+/* Make sure the form fits in the column */
+#dataForm {
+    max-width: 100%;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    .two-column-layout {
+        flex-direction: column;
+    }
+
+    .form-column,
+    .map-column {
+        max-width: 100%;
+    }
+
+    #map {
+        height: 400px;
+        margin-top: 20px;
+    }
 }
