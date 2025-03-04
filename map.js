@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const aucklandCoords = [-36.8485, 174.7633];
 
     // Create the map centered on Auckland with zoom level 12
-    const map = L.map('map').setView(aucklandCoords, 12);
+    const map = L.map('map').setView(aucklandCoords, 18);
 
     // Add OpenStreetMap tile layer
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {

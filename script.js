@@ -7,6 +7,17 @@ document.addEventListener('DOMContentLoaded', function () {
     const uploadDateField = document.getElementById('upload_date');
     const fileSizeField = document.getElementById('file_size');
 
+    // Create a message container for form submission feedback
+    const messageContainer = document.createElement('div');
+    messageContainer.id = 'submission-message';
+    messageContainer.className = 'submission-message';
+    messageContainer.style.display = 'none';
+
+    // Insert the message container after the form
+    if (form) {
+        form.insertAdjacentElement('afterend', messageContainer);
+    }
+
     // Initialize form with default values
     initializeFormDefaults();
 
@@ -137,14 +148,68 @@ document.addEventListener('DOMContentLoaded', function () {
     function displayResponse(response) {
         console.log('Response received:', response);
 
-        // Create alert instead of updating non-existent element
-        if (response && response._id) {
-            alert('Data successfully submitted! Document ID: ' + response._id);
+        // Update message container instead of using alert
+        if (messageContainer) {
+            if (response && response._id) {
+                // Create a more detailed success message
+                const successHTML = `
+                    <div class="success-details">
+                        <h3><i class="fas fa-check-circle"></i> Upload Successful!</h3>
+                        <p><strong>Document ID:</strong> ${response._id}</p>
+                        <p><strong>Index:</strong> ${response._index || 'pc-data-access-idx-000001'}</p>
+                        <p><strong>Created:</strong> ${response.result === 'created' ? 'Yes' : 'No'}</p>
+                        <p><strong>Timestamp:</strong> ${new Date().toLocaleString()}</p>
+                        <p>Your data has been successfully uploaded to the Data Access Portal.</p>
+                    </div>
+                `;
+                messageContainer.innerHTML = successHTML;
+                messageContainer.className = 'submission-message success';
+            } else {
+                messageContainer.innerHTML = `
+                    <div class="success-details">
+                        <h3><i class="fas fa-check-circle"></i> Upload Successful!</h3>
+                        <p>Your data has been successfully uploaded to the Data Access Portal.</p>
+                        <p><strong>Timestamp:</strong> ${new Date().toLocaleString()}</p>
+                    </div>
+                `;
+                messageContainer.className = 'submission-message success';
+            }
+            messageContainer.style.display = 'block';
+
+            // Hide message after 8 seconds (increased from 5 seconds to give users more time to read)
+            setTimeout(() => {
+                messageContainer.style.display = 'none';
+            }, 8000);
         } else {
-            alert('Data submitted successfully!');
+            // Fallback to alert if message container doesn't exist
+            if (response && response._id) {
+                alert(`Upload Successful!\nDocument ID: ${response._id}\nIndex: ${response._index || 'pc-data-access-idx-000001'}\nCreated: ${response.result === 'created' ? 'Yes' : 'No'}\nTimestamp: ${new Date().toLocaleString()}`);
+            } else {
+                alert(`Upload Successful!\nYour data has been successfully uploaded to the Data Access Portal.\nTimestamp: ${new Date().toLocaleString()}`);
+            }
         }
     }
 
+
+    // Function to display error
+    function displayError(error) {
+        console.error('Error:', error);
+
+        // Update message container instead of using alert
+        if (messageContainer) {
+            messageContainer.textContent = 'Error submitting data: ' + error.message;
+            messageContainer.className = 'submission-message error';
+            messageContainer.style.display = 'block';
+
+            // Hide message after 5 seconds
+            setTimeout(() => {
+                messageContainer.style.display = 'none';
+            }, 5000);
+        } else {
+            // Fallback to alert if message container doesn't exist
+            alert('Error submitting data: ' + error.message);
+        }
+    }
     // Form submission
     if (form) {
         form.addEventListener('submit', function (e) {
@@ -161,11 +226,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     jsonData[key] = value;
                 }
             });
-
             // Add WKT data if available (but don't make it mandatory)
             const wktOutput = document.getElementById('wkt_output');
             if (wktOutput && wktOutput.value) {
                 jsonData.wkt = wktOutput.value;
+                // Map WKT value to geo_location_area field for Elasticsearch
+                jsonData.geo_location_area = wktOutput.value;
             }
 
             // Add timestamp
@@ -177,6 +243,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             console.log('Submitting data:', jsonData);
+
 
             // Submit to Elasticsearch via CORS proxy
             const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
@@ -222,12 +289,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     initializeFormDefaults();
                 })
                 .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error submitting data: ' + error.message);
+                    displayError(error);
                 });
         });
     }
 });
+
 
 
 
