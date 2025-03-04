@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Access Portal Upload</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2196F3;
+            --primary-dark: #1976D2;
+            --accent-color: #FF4081;
+            --text-color: #333;
+            --light-gray: #f5f5f5;
+            --border-color: #e0e0e0;
+            --success-color: #4CAF50;
+            --error-color: #F44336;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: #f9f9f9;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 500;
+            font-size: 28px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+            font-size: 14px;
+        }
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-family: 'Roboto', sans-serif;
+            font-size: 14px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+        }
+
+        input[readonly] {
+            background-color: var(--light-gray);
+            cursor: not-allowed;
+        }
+
+        textarea {
+            height: 120px;
+            resize: vertical;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: background-color 0.3s;
+            display: block;
+            margin: 20px auto 0;
+            min-width: 200px;
+        }
+
+        button:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .response {
+            margin-top: 30px;
+            padding: 15px;
+            border-radius: 4px;
+            text-align: center;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .success {
+            background-color: rgba(76, 175, 80, 0.1);
+            color: var(--success-color);
+            border-left: 4px solid var(--success-color);
+        }
+
+        .error {
+            background-color: rgba(244, 67, 54, 0.1);
+            color: var(--error-color);
+            border-left: 4px solid var(--error-color);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+
+        /* Add subtle animation for form elements */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-group {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+
+        /* Required field indicator */
+        label.required::after {
+            content: "*";
+            color: var(--error-color);
+            margin-left: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Data Access Portal Upload</h1>
+        <form id="dataForm">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="file_name" class="required">File Name</label>
+                    <input type="text" id="file_name" name="file_name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="file_format" class="required">File Format</label>
+                    <input type="text" id="file_format" name="file_format" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="data_type" class="required">Data Type</label>
+                    <select id="data_type" name="data_type" required>
+                        <option value="">Select a data type</option>
+                        <option value="PDF">PDF</option>
+                        <option value="GIS">GIS</option>
+                        <option value="GeoTIFF">GeoTIFF</option>
+                        <option value="Photo">Photo</option>
+                        <option value="GPR">GPR</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="file_size" class="required">File Size</label>
+                    <input type="text" id="file_size" name="file_size" required readonly>
+                </div>
+
+                <div class="form-group">
+                    <label for="storage_url" class="required">Storage URL</label>
+                    <input type="url" id="storage_url" name="storage_url" required readonly>
+                </div>
+
+                <div class="form-group">
+                    <label for="data_api">Data API</label>
+                    <input type="url" id="data_api" name="data_api">
+                </div>
+
+                <div class="form-group">
+                    <label for="3rd_partydata_link">3rd Party Data Link</label>
+                    <input type="url" id="3rd_partydata_link" name="3rd_partydata_link">
+                </div>
+
+                <div class="form-group">
+                    <label for="short_description" class="required">Short Description</label>
+                    <input type="text" id="short_description" name="short_description" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="owner" class="required">Owner</label>
+                    <input type="text" id="owner" name="owner" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="captured_date" class="required">Captured Date</label>
+                    <input type="date" id="captured_date" name="captured_date" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="upload_date" class="required">Upload Date</label>
+                    <input type="date" id="upload_date" name="upload_date" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="expire_date">Expire Date</label>
+                    <input type="date" id="expire_date" name="expire_date">
+                </div>
+
+                <div class="form-group">
+                    <label for="tags">Tags (comma separated)</label>
+                    <input type="text" id="tags" name="tags">
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="long_description">Long Description</label>
+                    <textarea id="long_description" name="long_description"></textarea>
+                </div>
+            </div>
+
+            <button type="submit">Submit Data</button>
+        </form>
+
+        <div id="response" class="response" style="display: none;"></div>
+    </div>
+
+    <script>
+        // Set default date for captured_date and upload_date to today
+        window.addEventListener('DOMContentLoaded', function () {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            const formattedDate = `${year}-${month}-${day}`;
+
+            document.getElementById('captured_date').value = formattedDate;
+            document.getElementById('upload_date').value = formattedDate;
+        });
+
+        // Function to display response messages
+        function displayResponse(type, message) {
+            const responseElement = document.getElementById('response');
+            responseElement.textContent = message;
+            responseElement.className = 'response ' + type;
+            responseElement.style.display = 'block';
+
+            // Scroll to response
+            responseElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            // Hide after 5 seconds
+            setTimeout(() => {
+                responseElement.style.opacity = '0';
+                setTimeout(() => {
+                    responseElement.style.display = 'none';
+                    responseElement.style.opacity = '1';
+                }, 500);
+            }, 5000);
+        }
+        document.getElementById('dataForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            // Get form data
+            const formData = new FormData(this);
+            const data = {};
+
+            // Convert FormData to JSON object
+            formData.forEach((value, key) => {
+                // Handle tags as an array
+                if (key === 'tags' && value) {
+                    data[key] = value.split(',').map(tag => tag.trim());
+                } else {
+                    data[key] = value;
+                }
+            });
+
+            // Format dates properly
+            if (data.captured_date) {
+                data.captured_date = data.captured_date + 'T00:00:00Z';
+            }
+            if (data.upload_date) {
+                data.upload_date = data.upload_date + 'T00:00:00Z';
+            }
+            if (data.expire_date) {
+                data.expire_date = data.expire_date + 'T00:00:00Z';
+            }
+
+            // Elasticsearch API endpoint - replace with your actual endpoint
+            const apiUrl = '/api/submit-data'; // Replace with your actual API endpoint
+
+            // Send data to backend
+            fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(result => {
+                    displayResponse('success', 'Data successfully submitted!');
+                    document.getElementById('dataForm').reset();
+
+                    // Reset captured_date and upload_date to current date after form reset
+                    const today = new Date();
+                    const year = today.getFullYear();
+                    const month = String(today.getMonth() + 1).padStart(2, '0');
+                    const day = String(today.getDate()).padStart(2, '0');
+                    const formattedDate = `${year}-${month}-${day}`;
+                    document.getElementById('captured_date').value = formattedDate;
+                    document.getElementById('upload_date').value = formattedDate;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    displayResponse('error', 'Error submitting data: ' + error.message);
+                });
+        });
+    </script>
+</body>
+
+</html>
