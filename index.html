@@ -69,7 +69,8 @@
 
                 <div class="form-group wide-field">
                     <label for="short_description" class="required">Short Description</label>
-                    <input type="text" id="short_description" name="short_description" required maxlength="200" placeholder="Enter up to 200 characters">
+                    <input type="text" id="short_description" name="short_description" required maxlength="200"
+                        placeholder="Enter up to 200 characters">
                 </div>
                 <div class="form-group full-width">
                     <label for="long_description">Long Description</label>
@@ -77,18 +78,19 @@
                 </div>
 
                 <div class="form-group full-width">
-                    <label for="file_upload" class="required">Upload ZIP File</label>
+                    <label for="file_upload">Upload ZIP File</label>
                     <div id="file-upload-area" class="file-upload-container">
                         <i class="fas fa-cloud-upload-alt icon"></i>
                         <p>Drag & drop your ZIP file here</p>
                         <p>or</p>
                         <label for="file_upload" class="browse-btn">Browse Files</label>
-                        <input type="file" id="file_upload" name="file_upload" accept=".zip" required>
+                        <input type="file" id="file_upload" name="file_upload" accept=".zip">
                         <div class="file-info" style="display: none;">
                             <p>Selected file: <span class="file-name"></span></p>
                         </div>
                     </div>
                 </div>
+
             </div>
 
             <div class="display-field-container full-width">
@@ -120,4 +122,3 @@
 </body>
 
 </html>
-

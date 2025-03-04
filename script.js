@@ -32,7 +32,7 @@ window.addEventListener('DOMContentLoaded', function () {
 
     if (fileUploadArea && fileInput) {
         // Handle file selection via browse button
-        fileInput.addEventListener('change', function(e) {
+        fileInput.addEventListener('change', function (e) {
             const file = this.files[0];
             if (file) {
                 displayFileInfo(file);
@@ -55,7 +55,7 @@ window.addEventListener('DOMContentLoaded', function () {
         fileUploadArea.addEventListener('drop', handleDrop, false);
 
         // Click on the upload area to trigger file input
-        fileUploadArea.addEventListener('click', function(e) {
+        fileUploadArea.addEventListener('click', function (e) {
             if (e.target !== fileInput && !e.target.classList.contains('browse-btn')) {
                 fileInput.click();
             }
@@ -154,7 +154,7 @@ function formatFileSize(bytes) {
 document.getElementById('dataForm').addEventListener('submit', function (e) {
     e.preventDefault();
 
-    // Get form data
+    // Handle form data
     const formData = new FormData(this);
     const data = {};
 
@@ -181,29 +181,29 @@ document.getElementById('dataForm').addEventListener('submit', function (e) {
         data.expire_date = data.expire_date + 'T00:00:00Z';
     }
 
-    // Handle file upload
+    // Handle file upload if a file was selected
     const fileInput = document.getElementById('file_upload');
     const file = fileInput.files[0];
+    if (file) {
+        // In a real application, you would upload the file to S3 here
+        // For now, we'll simulate the upload and generate a fake S3 URL
+        const fakeS3Url = `https://example-bucket.s3.amazonaws.com/uploads/${file.name}`;
+        document.getElementById('storage_url').value = fakeS3Url;
 
-    if (!file) {
-        displayResponse('error', 'Please select a ZIP file to upload');
-        return;
+        // Add the storage URL to the data object
+        data.storage_url = fakeS3Url;
+
+        // Add file name to the data object if not already set
+        if (!data.file_name) {
+            data.file_name = file.name;
+        }
+
+        // Extract file format from file name if not already set
+        if (!data.file_format) {
+            const fileExtension = file.name.split('.').pop().toUpperCase();
+            data.file_format = fileExtension;
+        }
     }
-
-    // In a real application, you would upload the file to S3 here
-    // For now, we'll simulate the upload and generate a fake S3 URL
-    const fakeS3Url = `https://example-bucket.s3.amazonaws.com/uploads/${file.name}`;
-    document.getElementById('storage_url').value = fakeS3Url;
-
-    // Add the storage URL to the data object
-    data.storage_url = fakeS3Url;
-
-    // Add file name to the data object
-    data.file_name = file.name;
-
-    // Extract file format from file name
-    const fileExtension = file.name.split('.').pop().toLowerCase();
-    data.file_format = fileExtension;
 
     // Elasticsearch API endpoint
     const elasticsearchUrl = 'https://my-elasticsearch-project-d2bcb4.es.us-east-1.aws.elastic.cloud:443/pc-data-access-idx-000001/_doc';
@@ -211,7 +211,13 @@ document.getElementById('dataForm').addEventListener('submit', function (e) {
     // API Key for authentication
     const apiKey = 'bFhqM1lKVUJWM0R0WUMtaWNDWHE6aF92MDZfelNqeFM5N1UtMXZuTjVLdw==';
 
-    // Send data to Elasticsearch
+    // Display loading message
+    displayResponse('info', 'Submitting data to Elasticsearch...');
+
+    // For debugging - log the data being sent
+    console.log('Sending data to Elasticsearch:', JSON.stringify(data, null, 2));
+
+    // Send data to Elasticsearch with improved error handling
     fetch(elasticsearchUrl, {
         method: 'POST',
         headers: {
@@ -224,6 +230,9 @@ document.getElementById('dataForm').addEventListener('submit', function (e) {
         if (!response.ok) {
             return response.json().then(errorData => {
                 throw new Error(`Elasticsearch error: ${JSON.stringify(errorData)}`);
+            }).catch(e => {
+                // If we can't parse the error as JSON
+                throw new Error(`HTTP error ${response.status}: ${response.statusText}`);
             });
         }
         return response.json();
@@ -231,6 +240,8 @@ document.getElementById('dataForm').addEventListener('submit', function (e) {
     .then(result => {
         console.log('Elasticsearch response:', result);
         displayResponse('success', 'Data successfully submitted to Elasticsearch!');
+
+        // Reset form
         document.getElementById('dataForm').reset();
 
         // Reset captured_date to current date after form reset
@@ -255,6 +266,7 @@ document.getElementById('dataForm').addEventListener('submit', function (e) {
         document.getElementById('tags').value = 'tag1,tag2,tag3';
         document.getElementById('owner').value = 'Data Collection Owner';
         document.getElementById('data_type').value = 'PDF';
+
         // Clear file upload area
         document.querySelector('.file-info').style.display = 'none';
         document.getElementById('file_size').value = '';
@@ -262,9 +274,27 @@ document.getElementById('dataForm').addEventListener('submit', function (e) {
     })
     .catch(error => {
         console.error('Error:', error);
-        displayResponse('error', 'Error submitting data to Elasticsearch: ' + error.message);
+
+        // Provide more detailed error information
+        let errorMessage = 'Error submitting data to Elasticsearch: ';
+
+        if (error.message === 'Failed to fetch') {
+            errorMessage += 'Could not connect to the Elasticsearch server. This could be due to CORS restrictions, network issues, or incorrect API endpoint. Check your browser console for more details.';
+        } else {
+            errorMessage += error.message;
+        }
+
+        displayResponse('error', errorMessage);
+
+        // For testing purposes, you might want to simulate a successful submission
+        // Comment out the following line in production
+        // displayResponse('success', 'Data submission simulated for testing (actual submission failed)');
     });
 });
+
+
+
+
 
 
 
