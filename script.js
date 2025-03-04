@@ -206,7 +206,7 @@ document.getElementById('dataForm').addEventListener('submit', function (e) {
     }
 
     // Elasticsearch API endpoint
-    const elasticsearchUrl = 'https://my-elasticsearch-project-d2bcb4.es.us-east-1.aws.elastic.cloud:443/pc-data-access-idx-000001/_doc';
+    const elasticsearchUrl = 'https://cors-anywhere.herokuapp.com/https://my-elasticsearch-project-d2bcb4.es.us-east-1.aws.elastic.cloud:443/pc-data-access-idx-000001/_doc';
 
     // API Key for authentication
     const apiKey = 'bFhqM1lKVUJWM0R0WUMtaWNDWHE6aF92MDZfelNqeFM5N1UtMXZuTjVLdw==';
