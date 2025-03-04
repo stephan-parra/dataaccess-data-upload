@@ -17,6 +17,13 @@ window.addEventListener('DOMContentLoaded', function () {
 
     document.getElementById('upload_date').value = formattedDateTime;
 
+    // Set default values for form fields
+    document.getElementById('file_name').value = 'File1.pdf';
+    document.getElementById('file_format').value = 'PDF';
+    document.getElementById('short_description').value = 'Test upload of PDF data';
+    document.getElementById('tags').value = 'tag1,tag2,tag3';
+    document.getElementById('owner').value = 'Data Collection Owner';
+    document.getElementById('data_type').value = 'PDF';
     // File upload handling
     const fileUploadArea = document.getElementById('file-upload-area');
     const fileInput = document.getElementById('file_upload');
@@ -123,6 +130,11 @@ function displayFileInfo(file) {
         const seconds = String(now.getSeconds()).padStart(2, '0');
         const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
         uploadDateField.value = formattedDateTime;
+
+        // Update file name and format based on the uploaded file
+        document.getElementById('file_name').value = file.name;
+        const fileExtension = file.name.split('.').pop().toUpperCase();
+        document.getElementById('file_format').value = fileExtension;
     } else {
         alert('Please upload a ZIP file only.');
         document.getElementById('file_upload').value = '';
@@ -236,6 +248,13 @@ document.getElementById('dataForm').addEventListener('submit', function (e) {
         const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
         document.getElementById('upload_date').value = formattedDateTime;
 
+        // Reset default values for form fields
+        document.getElementById('file_name').value = 'File1.pdf';
+        document.getElementById('file_format').value = 'PDF';
+        document.getElementById('short_description').value = 'Test upload of PDF data';
+        document.getElementById('tags').value = 'tag1,tag2,tag3';
+        document.getElementById('owner').value = 'Data Collection Owner';
+        document.getElementById('data_type').value = 'PDF';
         // Clear file upload area
         document.querySelector('.file-info').style.display = 'none';
         document.getElementById('file_size').value = '';
@@ -246,5 +265,6 @@ document.getElementById('dataForm').addEventListener('submit', function (e) {
         displayResponse('error', 'Error submitting data to Elasticsearch: ' + error.message);
     });
 });
+
 
 
