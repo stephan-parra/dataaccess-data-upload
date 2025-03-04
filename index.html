@@ -61,8 +61,6 @@
                     <input type="date" id="captured_date" name="captured_date" required>
                 </div>
 
-                <!-- Removed the upload_date field from here -->
-
                 <div class="form-group">
                     <label for="expire_date">Expire Date</label>
                     <input type="date" id="expire_date" name="expire_date">
@@ -103,114 +101,9 @@
         <div id="response" class="response" style="display: none;"></div>
     </div>
 
-    <!DOCTYPE html>
-    <html lang="en">
-
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Data Access Portal Upload</title>
-        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-        <link rel="stylesheet" href="styles.css">
-    </head>
-
-    <body>
-        <div class="container">
-            <h1>Data Access Portal Upload</h1>
-            <form id="dataForm">
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="file_name" class="required">File Name</label>
-                        <input type="text" id="file_name" name="file_name" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="file_format" class="required">File Format</label>
-                        <input type="text" id="file_format" name="file_format" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="data_type" class="required">Data Type</label>
-                        <select id="data_type" name="data_type" required>
-                            <option value="">Select a data type</option>
-                            <option value="PDF">PDF</option>
-                            <option value="GIS">GIS</option>
-                            <option value="GeoTIFF">GeoTIFF</option>
-                            <option value="Photo">Photo</option>
-                            <option value="GPR">GPR</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="data_api">Data API</label>
-                        <input type="url" id="data_api" name="data_api">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="3rd_partydata_link">3rd Party Data Link</label>
-                        <input type="url" id="3rd_partydata_link" name="3rd_partydata_link">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="short_description" class="required">Short Description</label>
-                        <input type="text" id="short_description" name="short_description" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="owner" class="required">Owner</label>
-                        <input type="text" id="owner" name="owner" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="captured_date" class="required">Captured Date</label>
-                        <input type="date" id="captured_date" name="captured_date" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="expire_date">Expire Date</label>
-                        <input type="date" id="expire_date" name="expire_date">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="tags">Tags (comma separated)</label>
-                        <input type="text" id="tags" name="tags">
-                    </div>
-
-                    <div class="form-group full-width">
-                        <label for="long_description">Long Description</label>
-                        <textarea id="long_description" name="long_description"></textarea>
-                    </div>
-                </div>
-
-                <div class="display-field-container full-width">
-                    <h3>File Information</h3>
-                    <div class="form-group">
-                        <label for="upload_date">Upload Date</label>
-                        <input type="text" id="upload_date" name="upload_date" class="display-field" readonly>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="file_size">File Size</label>
-                        <input type="text" id="file_size" name="file_size" class="display-field" readonly>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="storage_url">Storage URL</label>
-                        <input type="url" id="storage_url" name="storage_url" class="display-field" readonly>
-                    </div>
-                </div>
-
-                <button type="submit">Submit Data</button>
-            </form>
-
-            <div id="response" class="response" style="display: none;"></div>
-        </div>
-
-        <!-- Reference to external JavaScript file -->
-        <script src="script.js"></script>
-    </body>
-
-    </html>
+    <!-- Reference to external JavaScript file -->
+    <script src="script.js"></script>
 </body>
 
 </html>
+
