@@ -140,9 +140,61 @@ document.addEventListener('DOMContentLoaded', function () {
             isValid = false;
         }
 
+        // Check if WKT field is filled
+        const wktField = document.getElementById('geo_location_area');
+        if (isValid && (!wktField || !wktField.value.trim())) {
+            // Instead of showing a general error, highlight the WKT field
+            showWktError('Please draw a polygon on the map to define the area of interest');
+            isValid = false;
+        } else if (wktField) {
+            // Clear any previous error styling
+            clearWktError();
+        }
         return isValid;
     }
 
+    // Function to show WKT-specific error
+    function showWktError(message) {
+        const wktField = document.getElementById('geo_location_area');
+        if (wktField) {
+            // Add error class to the textarea
+            wktField.classList.add('error');
+
+            // Check if error message element already exists
+            let errorElement = document.getElementById('wkt-error-message');
+            if (!errorElement) {
+                // Create error message element
+                errorElement = document.createElement('div');
+                errorElement.id = 'wkt-error-message';
+                errorElement.className = 'validation-error';
+                errorElement.style.color = 'red';
+                errorElement.style.fontSize = '0.9em';
+                errorElement.style.marginTop = '5px';
+
+                // Insert after the WKT textarea
+                wktField.insertAdjacentElement('afterend', errorElement);
+            }
+
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+
+            // Scroll to the WKT field
+            wktField.scrollIntoView({ behavior: 'smooth' });
+        }
+    }
+
+    // Function to clear WKT error
+    function clearWktError() {
+        const wktField = document.getElementById('geo_location_area');
+        if (wktField) {
+            wktField.classList.remove('error');
+
+            const errorElement = document.getElementById('wkt-error-message');
+            if (errorElement) {
+                errorElement.style.display = 'none';
+            }
+        }
+    }
     // Function to show error messages
     function showError(message) {
         messageContainer.textContent = message;
@@ -177,6 +229,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }, 5000);
     }
 });
+
 
 
 

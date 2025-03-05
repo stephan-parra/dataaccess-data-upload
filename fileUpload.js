@@ -274,16 +274,43 @@ document.addEventListener('DOMContentLoaded', function() {
         if (submitButton) {
             submitButton.addEventListener('click', function(e) {
                 const wktOutput = document.getElementById('wkt_output');
+                const wktErrorMessage = document.getElementById('wkt_error_message') || createWktErrorMessage();
 
                 // If WKT is required but not provided, prevent form submission
                 if (wktOutput && !wktOutput.value && wktOutput.hasAttribute('required')) {
                     e.preventDefault();
-                    alert('Please draw a polygon on the map or enter a WKT string before submitting.');
+                    // Show error message instead of alert
+                    wktErrorMessage.textContent = 'Please draw a polygon on the map or enter a WKT string before submitting.';
+                    wktErrorMessage.style.display = 'block';
+                    wktOutput.classList.add('error-border');
                     return false;
+                } else {
+                    // Hide error message if WKT is provided
+                    wktErrorMessage.style.display = 'none';
+                    wktOutput.classList.remove('error-border');
                 }
             });
         }
     }
+
+    // Function to create error message element if it doesn't exist
+    function createWktErrorMessage() {
+        const wktOutput = document.getElementById('wkt_output');
+        const errorMessage = document.createElement('div');
+        errorMessage.id = 'wkt_error_message';
+        errorMessage.style.color = 'red';
+        errorMessage.style.fontSize = '14px';
+        errorMessage.style.marginTop = '5px';
+        errorMessage.style.display = 'none';
+
+        // Insert the error message after the WKT output field
+        if (wktOutput && wktOutput.parentNode) {
+            wktOutput.parentNode.insertBefore(errorMessage, wktOutput.nextSibling);
+        }
+
+        return errorMessage;
+    }
+
 });
 
 
