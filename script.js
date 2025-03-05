@@ -82,9 +82,75 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
     }
+    // Allowed file extensions
+    const allowedExtensions = ['.pdf', '.zip', '.geotiff', '.tiff', '.png', '.jpeg', '.jpg', '.avi'];
+
+    // Function to check if file extension is allowed
+    function isFileExtensionAllowed(filename) {
+        const extension = '.' + filename.split('.').pop().toLowerCase();
+        return allowedExtensions.includes(extension);
+    }
+
+    // Show error message
+    function showError(message) {
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error-message';
+        errorDiv.textContent = message;
+        fileUploadArea.appendChild(errorDiv);
+
+        // Remove error message after 5 seconds
+        setTimeout(() => {
+            errorDiv.remove();
+        }, 5000);
+    }
+
+    // Handle file selection
+    // Function to handle file selection
+    function handleFileSelect(file) {
+        if (!file) return;
+
+        if (!isFileExtensionAllowed(file.name)) {
+            showError('Invalid file type. Please upload PDF, ZIP, GeoTIFF, TIFF, PNG, JPEG, JPG, or AVI files only.');
+            fileUpload.value = '';
+            return;
+        }
+
+        // Update file info display
+        fileName.textContent = file.name;
+        fileInfo.style.display = 'block';
+
+        // Auto-populate file name field
+        const fileNameField = document.getElementById('file_name');
+        if (fileNameField) {
+            fileNameField.value = file.name;
+        }
+
+        // Auto-populate file format field
+        const fileFormatField = document.getElementById('file_format');
+        if (fileFormatField) {
+            const extension = file.name.split('.').pop().toUpperCase();
+            fileFormatField.value = extension;
+        }
+        // Display file size
+        const size = file.size;
+        if (size < 1024) {
+            fileSizeField.value = size + ' bytes';
+        } else if (size < 1024 * 1024) {
+            fileSizeField.value = (size / 1024).toFixed(2) + ' KB';
+        } else {
+            fileSizeField.value = (size / (1024 * 1024)).toFixed(2) + ' MB';
+        }
+
+        // Set upload date
+        const now = new Date();
+        document.getElementById('upload_date').value = now.toLocaleDateString() + ' ' + now.toLocaleTimeString();
+    }
+
     // File upload handling
     if (fileUpload) {
-        fileUpload.addEventListener('change', handleFileSelect);
+        fileUpload.addEventListener('change', function(e) {
+            handleFileSelect(this.files[0]);
+        });
     }
 
     // Drag and drop functionality
@@ -106,43 +172,12 @@ document.addEventListener('DOMContentLoaded', function () {
             e.stopPropagation();
             fileUploadArea.classList.remove('dragover');
 
-            const dt = e.dataTransfer;
-            const files = dt.files;
-
-            if (files.length) {
-                fileUpload.files = files;
-                handleFileSelect();
-            }
+            const file = e.dataTransfer.files[0];
+            fileUpload.files = e.dataTransfer.files;
+            handleFileSelect(file);
         });
     }
 
-    function handleFileSelect() {
-        if (fileUpload.files.length > 0) {
-            const file = fileUpload.files[0];
-            if (fileName) {
-                fileName.textContent = file.name;
-            }
-            if (fileInfo) {
-                fileInfo.style.display = 'block';
-            }
-
-            // Display file size
-            const size = file.size;
-            let sizeStr;
-
-            if (size < 1024) {
-                sizeStr = size + ' bytes';
-            } else if (size < 1024 * 1024) {
-                sizeStr = (size / 1024).toFixed(2) + ' KB';
-            } else {
-                sizeStr = (size / (1024 * 1024)).toFixed(2) + ' MB';
-            }
-
-            if (fileSizeField) {
-                fileSizeField.value = sizeStr;
-            }
-        }
-    }
 
     // Function to display response
     function displayResponse(response) {

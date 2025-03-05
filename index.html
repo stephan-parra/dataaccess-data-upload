@@ -27,6 +27,19 @@
             <div class="form-column">
                 <form id="dataForm">
                     <div class="form-grid">
+                        <div class="form-group full-width">
+                            <div id="file-upload-area" class="file-upload-container">
+                                <i class="fas fa-cloud-upload-alt icon"></i>
+                                <p>Drag & drop your file here</p>
+                                <p>or</p>
+                                <label for="file_upload" class="browse-btn">Browse Files</label>
+                                <input type="file" id="file_upload" name="file_upload" accept=".pdf,.zip,.geotiff,.tiff,.png,.jpeg,.jpg,.avi">
+                                <div class="file-info" style="display: none;">
+                                    <p>Selected file: <span class="file-name"></span></p>
+                                </div>
+                            </div>
+
+                        </div>
                         <div class="form-group">
                             <label for="file_name" class="required">File Name</label>
                             <input type="text" id="file_name" name="file_name" required>
@@ -87,20 +100,6 @@
                         <div class="form-group full-width">
                             <label for="long_description">Long Description</label>
                             <textarea id="long_description" name="long_description"></textarea>
-                        </div>
-
-                        <div class="form-group full-width">
-                            <label for="file_upload">Upload ZIP File</label>
-                            <div id="file-upload-area" class="file-upload-container">
-                                <i class="fas fa-cloud-upload-alt icon"></i>
-                                <p>Drag & drop your ZIP file here</p>
-                                <p>or</p>
-                                <label for="file_upload" class="browse-btn">Browse Files</label>
-                                <input type="file" id="file_upload" name="file_upload" accept=".zip">
-                                <div class="file-info" style="display: none;">
-                                    <p>Selected file: <span class="file-name"></span></p>
-                                </div>
-                            </div>
                         </div>
                     </div>
 
