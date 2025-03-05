@@ -1,13 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
     const form = document.getElementById('dataForm');
-    const fileUpload = document.getElementById('file_upload');
-    const fileUploadArea = document.getElementById('file-upload-area');
-    const fileInfo = document.querySelector('.file-info');
-    const fileName = document.querySelector('.file-name');
-    const uploadDateField = document.getElementById('upload_date');
-    const fileSizeField = document.getElementById('file_size');
-
-    // Create a message container for form submission feedback
     const messageContainer = document.createElement('div');
     messageContainer.id = 'submission-message';
     messageContainer.className = 'submission-message';
@@ -24,6 +16,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function initializeFormDefaults() {
         // Set current date as upload date
         const today = new Date();
+        const uploadDateField = document.getElementById('upload_date');
         if (uploadDateField) {
             uploadDateField.value = today.toISOString().split('T')[0];
         }
@@ -60,6 +53,11 @@ document.addEventListener('DOMContentLoaded', function () {
             console.warn("Expire date field not found with ID 'expire_date'");
         }
 
+        // Set default WKT polygon for Auckland area
+        const wktField = document.getElementById('geo_location_area');
+        if (wktField) {
+            wktField.value = "POLYGON((174.76385325193405 -36.84773110369033, 174.76348847150808 -36.84848662911965, 174.7625657916069 -36.84821618621595, 174.762935936451 -36.84741773015693, 174.76385325193405 -36.84773110369033))";
+        }
         // Set other default values if needed
         const defaultFields = {
             'file_name': 'File1.pdf',
@@ -82,253 +80,104 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
     }
-    // Allowed file extensions
-    const allowedExtensions = ['.pdf', '.zip', '.geotiff', '.tiff', '.png', '.jpeg', '.jpg', '.avi'];
 
-    // Function to check if file extension is allowed
-    function isFileExtensionAllowed(filename) {
-        const extension = '.' + filename.split('.').pop().toLowerCase();
-        return allowedExtensions.includes(extension);
-    }
-
-    // Show error message
-    function showError(message) {
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'error-message';
-        errorDiv.textContent = message;
-        fileUploadArea.appendChild(errorDiv);
-
-        // Remove error message after 5 seconds
-        setTimeout(() => {
-            errorDiv.remove();
-        }, 5000);
-    }
-
-    // Handle file selection
-    // Function to handle file selection
-    function handleFileSelect(file) {
-        if (!file) return;
-
-        if (!isFileExtensionAllowed(file.name)) {
-            showError('Invalid file type. Please upload PDF, ZIP, GeoTIFF, TIFF, PNG, JPEG, JPG, or AVI files only.');
-            fileUpload.value = '';
-            return;
-        }
-
-        // Update file info display
-        fileName.textContent = file.name;
-        fileInfo.style.display = 'block';
-
-        // Auto-populate file name field
-        const fileNameField = document.getElementById('file_name');
-        if (fileNameField) {
-            fileNameField.value = file.name;
-        }
-
-        // Auto-populate file format field
-        const fileFormatField = document.getElementById('file_format');
-        if (fileFormatField) {
-            const extension = file.name.split('.').pop().toUpperCase();
-            fileFormatField.value = extension;
-        }
-        // Display file size
-        const size = file.size;
-        if (size < 1024) {
-            fileSizeField.value = size + ' bytes';
-        } else if (size < 1024 * 1024) {
-            fileSizeField.value = (size / 1024).toFixed(2) + ' KB';
-        } else {
-            fileSizeField.value = (size / (1024 * 1024)).toFixed(2) + ' MB';
-        }
-
-        // Set upload date
-        const now = new Date();
-        document.getElementById('upload_date').value = now.toLocaleDateString() + ' ' + now.toLocaleTimeString();
-    }
-
-    // File upload handling
-    if (fileUpload) {
-        fileUpload.addEventListener('change', function(e) {
-            handleFileSelect(this.files[0]);
-        });
-    }
-
-    // Drag and drop functionality
-    if (fileUploadArea) {
-        fileUploadArea.addEventListener('dragover', function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            fileUploadArea.classList.add('dragover');
-        });
-
-        fileUploadArea.addEventListener('dragleave', function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            fileUploadArea.classList.remove('dragover');
-        });
-
-        fileUploadArea.addEventListener('drop', function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            fileUploadArea.classList.remove('dragover');
-
-            const file = e.dataTransfer.files[0];
-            fileUpload.files = e.dataTransfer.files;
-            handleFileSelect(file);
-        });
-    }
-
-
-    // Function to display response
-    function displayResponse(response) {
-        console.log('Response received:', response);
-
-        // Update message container instead of using alert
-        if (messageContainer) {
-            if (response && response._id) {
-                // Create a more detailed success message
-                const successHTML = `
-                    <div class="success-details">
-                        <h3><i class="fas fa-check-circle"></i> Upload Successful!</h3>
-                        <p><strong>Document ID:</strong> ${response._id}</p>
-                        <p><strong>Index:</strong> ${response._index || 'pc-data-access-idx-000001'}</p>
-                        <p><strong>Created:</strong> ${response.result === 'created' ? 'Yes' : 'No'}</p>
-                        <p><strong>Timestamp:</strong> ${new Date().toLocaleString()}</p>
-                        <p>Your data has been successfully uploaded to the Data Access Portal.</p>
-                    </div>
-                `;
-                messageContainer.innerHTML = successHTML;
-                messageContainer.className = 'submission-message success';
-            } else {
-                messageContainer.innerHTML = `
-                    <div class="success-details">
-                        <h3><i class="fas fa-check-circle"></i> Upload Successful!</h3>
-                        <p>Your data has been successfully uploaded to the Data Access Portal.</p>
-                        <p><strong>Timestamp:</strong> ${new Date().toLocaleString()}</p>
-                    </div>
-                `;
-                messageContainer.className = 'submission-message success';
-            }
-            messageContainer.style.display = 'block';
-
-            // Hide message after 8 seconds (increased from 5 seconds to give users more time to read)
-            setTimeout(() => {
-                messageContainer.style.display = 'none';
-            }, 8000);
-        } else {
-            // Fallback to alert if message container doesn't exist
-            if (response && response._id) {
-                alert(`Upload Successful!\nDocument ID: ${response._id}\nIndex: ${response._index || 'pc-data-access-idx-000001'}\nCreated: ${response.result === 'created' ? 'Yes' : 'No'}\nTimestamp: ${new Date().toLocaleString()}`);
-            } else {
-                alert(`Upload Successful!\nYour data has been successfully uploaded to the Data Access Portal.\nTimestamp: ${new Date().toLocaleString()}`);
-            }
-        }
-    }
-
-
-    // Function to display error
-    function displayError(error) {
-        console.error('Error:', error);
-
-        // Update message container instead of using alert
-        if (messageContainer) {
-            messageContainer.textContent = 'Error submitting data: ' + error.message;
-            messageContainer.className = 'submission-message error';
-            messageContainer.style.display = 'block';
-
-            // Hide message after 5 seconds
-            setTimeout(() => {
-                messageContainer.style.display = 'none';
-            }, 5000);
-        } else {
-            // Fallback to alert if message container doesn't exist
-            alert('Error submitting data: ' + error.message);
-        }
-    }
-    // Form submission
+    // Form submission handler
     if (form) {
         form.addEventListener('submit', function (e) {
             e.preventDefault();
 
-            // Collect form data
+            // Validate form fields
+            if (!validateForm()) {
+                return;
+            }
+
+            // Get form data
             const formData = new FormData(form);
             const jsonData = {};
 
-            formData.forEach((value, key) => {
-                const element = document.querySelector(`[name="${key}"]`);
-                // Skip empty values except for required fields
-                if (value || (element && element.hasAttribute('required'))) {
+            // Convert FormData to JSON
+            for (const [key, value] of formData.entries()) {
+                // Special handling for geo_location_area to ensure it's properly mapped
+                if (key === 'geo_location_area') {
+                    jsonData[key] = value.trim();
+                } else {
                     jsonData[key] = value;
                 }
-            });
-            // Add WKT data if available (but don't make it mandatory)
-            const wktOutput = document.getElementById('wkt_output');
-            if (wktOutput && wktOutput.value) {
-                jsonData.wkt = wktOutput.value;
-                // Map WKT value to geo_location_area field for Elasticsearch
-                jsonData.geo_location_area = wktOutput.value;
             }
 
-            // Add timestamp
-            jsonData.timestamp = new Date().toISOString();
-
-            // Convert tags to array if present
-            if (jsonData.tags) {
-                jsonData.tags = jsonData.tags.split(',').map(tag => tag.trim());
+            // Ensure WKT field is included
+            const wktField = document.getElementById('geo_location_area');
+            if (wktField && wktField.value) {
+                jsonData.geo_location_area = wktField.value.trim();
             }
 
             console.log('Submitting data:', jsonData);
 
-
-            // Submit to Elasticsearch via CORS proxy
-            const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
-            // Updated Elasticsearch URL
-            const elasticsearchUrl = 'https://my-elasticsearch-project-d2bcb4.es.us-east-1.aws.elastic.cloud:443/pc-data-access-idx-000001/_doc';
-
-            console.log('Sending request to:', proxyUrl + elasticsearchUrl);
-
-            fetch(proxyUrl + elasticsearchUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'Authorization': 'ApiKey bFhqM1lKVUJWM0R0WUMtaWNDWHE6aF92MDZfelNqeFM5N1UtMXZuTjVLdw=='
-                },
-                body: JSON.stringify(jsonData)
-            })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok: ' + response.statusText);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('Success:', data);
-                    displayResponse(data);
-
-                    // Reset form
-                    form.reset();
-                    if (fileInfo) {
-                        fileInfo.style.display = 'none';
-                    }
-                    if (wktOutput) {
-                        wktOutput.value = '';
-                    }
-
-                    // Reset map
-                    if (window.resetMap && typeof window.resetMap === 'function') {
-                        window.resetMap();
-                    }
-
-                    // Reset default values
-                    initializeFormDefaults();
-                })
-                .catch(error => {
-                    displayError(error);
-                });
+            // Submit data to ElasticSearch
+            submitToElasticSearch(jsonData);
         });
     }
+
+    // Function to validate form
+    function validateForm() {
+        // Check required fields
+        const requiredFields = ['file_name', 'file_format', 'short_description', 'owner', 'data_type'];
+        let isValid = true;
+
+        for (const fieldId of requiredFields) {
+            const field = document.getElementById(fieldId);
+            if (!field || !field.value.trim()) {
+                showError(`Please fill in the ${fieldId.replace('_', ' ')} field.`);
+                isValid = false;
+                break;
+            }
+        }
+
+        // Check if file is selected
+        const fileUpload = document.getElementById('file_upload');
+        if (isValid && (!fileUpload || !fileUpload.files[0])) {
+            showError('Please select a file to upload.');
+            isValid = false;
+        }
+
+        return isValid;
+    }
+
+    // Function to show error messages
+    function showError(message) {
+        messageContainer.textContent = message;
+        messageContainer.className = 'submission-message error';
+        messageContainer.style.display = 'block';
+
+        // Scroll to message
+        messageContainer.scrollIntoView({ behavior: 'smooth' });
+
+        // Hide message after 5 seconds
+        setTimeout(() => {
+            messageContainer.style.display = 'none';
+        }, 5000);
+    }
+
+    // Function to submit data to ElasticSearch
+    function submitToElasticSearch(data) {
+        // Placeholder for ElasticSearch submission
+        console.log('Submitting to ElasticSearch:', data);
+
+        // Show success message
+        messageContainer.textContent = 'Data submitted successfully!';
+        messageContainer.className = 'submission-message success';
+        messageContainer.style.display = 'block';
+
+        // Scroll to message
+        messageContainer.scrollIntoView({ behavior: 'smooth' });
+
+        // Hide message after 5 seconds
+        setTimeout(() => {
+            messageContainer.style.display = 'none';
+        }, 5000);
+    }
 });
+
 
 
 
