@@ -104,10 +104,11 @@
                                 placeholder="Enter up to 200 characters">
                         </div>
 
-                        <div class="form-group">
-                            <label for="price">Price</label>
-                            <input type="number" id="price" name="price" step="10.00" min="0" placeholder="10.00">
-                        </div>
+                                         <div class="form-group">
+                                             <label for="price">Price</label>
+                                             <input type="text" id="price" name="price" placeholder="Enter price (e.g. 10.99)" 
+                        pattern="^\d*(\.\d{0,2})?$" title="Please enter a valid price with up to 2 decimal places">
+                                         </div>
 
 
 

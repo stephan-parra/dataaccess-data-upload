@@ -150,6 +150,13 @@ document.addEventListener('DOMContentLoaded', function () {
             // Clear any previous error styling
             clearWktError();
         }
+
+        // Validate price field if it exists
+        const priceField = document.getElementById('price');
+        if (isValid && priceField && priceField.value.trim() && !validatePrice(priceField.value.trim())) {
+            showError('Please enter a valid price with up to 2 decimal places.');
+            isValid = false;
+        }
         return isValid;
     }
 
@@ -195,6 +202,31 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
     }
+
+    // Add this function to validate the price field
+    // Update the validatePrice function to properly handle decimal values
+    // Update the validatePrice function to properly handle decimal values
+    function validatePrice(price) {
+        // Allow empty price (optional field)
+        if (!price) return true;
+
+        // Convert to number and check if it's valid
+        const numPrice = parseFloat(price);
+        if (isNaN(numPrice)) return false;
+
+        // Check if it's a positive number
+        if (numPrice < 0) return false;
+        // Check if it has at most 2 decimal places
+        const decimalStr = price.toString().split('.');
+        if (decimalStr.length > 1 && decimalStr[1].length > 2) {
+            return false;
+        }
+
+        return true;
+    }
+
+
+
     // Function to show error messages
     function showError(message) {
         messageContainer.textContent = message;
