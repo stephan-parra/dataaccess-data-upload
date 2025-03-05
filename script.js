@@ -62,8 +62,8 @@ document.addEventListener('DOMContentLoaded', function () {
         const defaultFields = {
             'file_name': 'File1.pdf',
             'file_format': 'PDF',
-            'short_description': 'Test upload of PDF data',
-            'long_description': '',
+            'short_description': 'Subsurface Utility Survey',
+            'long_description': 'Ground Penetrating Radar survey data of subsurface utilities in central Auckland.',
             'tags': 'tag1,tag2,tag3',
             'owner': 'Data Collection Owner',
             'data_type': 'PDF',
