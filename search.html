@@ -256,6 +256,11 @@
             <p>Searching for data...</p>
         </div>
 
+        <div id="queryDisplay" class="query-display" style="display: none;">
+            <h3>Elasticsearch Query</h3>
+            <pre id="queryText"></pre>
+        </div>
+
         <div class="results-container" id="resultsContainer">
             <div class="results-header">
                 <h2>Search Results</h2>
@@ -428,7 +433,6 @@
                 document.getElementById('errorMessage').style.display = 'none';
             }
 
-            // Function to perform the search
             function performSearch(wkt) {
                 // Show loading indicator
                 document.getElementById('loadingIndicator').style.display = 'block';
@@ -441,7 +445,7 @@
                         bool: {
                             filter: {
                                 geo_shape: {
-                                    location: {
+                                    geo_location_area: {
                                         shape: {
                                             type: "polygon",
                                             coordinates: parseWKT(wkt)
@@ -454,6 +458,11 @@
                     }
                 };
 
+                // Display the query on the page
+                const queryDisplay = document.getElementById('queryDisplay');
+                const queryText = document.getElementById('queryText');
+                queryText.textContent = JSON.stringify(query, null, 2);
+                queryDisplay.style.display = 'block';
                 // CORS proxy URL
                 const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
                 // Elasticsearch URL
@@ -486,6 +495,7 @@
                     document.getElementById('loadingIndicator').style.display = 'none';
                 });
             }
+
 
 
 
