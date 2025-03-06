@@ -454,8 +454,13 @@
                     }
                 };
 
-                // Make the API call to Elasticsearch
-                fetch('https://my-elasticsearch-project-d2bcb4.es.us-east-1.aws.elastic.cloud:443/pc-data-access-idx-000001/_search', {
+                // CORS proxy URL
+                const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+                // Elasticsearch URL
+                const elasticsearchUrl = 'https://my-elasticsearch-project-d2bcb4.es.us-east-1.aws.elastic.cloud:443/pc-data-access-idx-000001/_search';
+
+                // Make the API call to Elasticsearch via the CORS proxy
+                fetch(proxyUrl + elasticsearchUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -481,6 +486,7 @@
                     document.getElementById('loadingIndicator').style.display = 'none';
                 });
             }
+
 
 
             // Function to get mock results
