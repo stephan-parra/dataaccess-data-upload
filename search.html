@@ -385,6 +385,16 @@
                 }
             }
 
+            // Function to parse WKT to GeoJSON coordinates
+            function parseWKT(wkt) {
+                const coordsText = wkt.replace('POLYGON((', '').replace('))', '');
+                const coordPairs = coordsText.split(',').map(pair => pair.trim());
+                const coordinates = coordPairs.map(pair => {
+                    const [lng, lat] = pair.split(' ').map(Number);
+                    return [lng, lat];
+                });
+                return [coordinates];
+            }
             // Search button click handler
             document.getElementById('searchButton').addEventListener('click', function () {
                 const wkt = document.getElementById('wkt_input').value;
@@ -425,21 +435,53 @@
                 document.getElementById('resultsGrid').innerHTML = '';
                 hideError();
 
-                // Mock API call - in a real application, this would be an actual API call
-                setTimeout(() => {
-                    try {
-                        // Simulate API response with mock data
-                        const results = getMockResults();
-                        displayResults(results);
-                    } catch (error) {
-                        showError('An error occurred while searching. Please try again.');
-                        console.error('Search error:', error);
-                    } finally {
-                        // Hide loading indicator
-                        document.getElementById('loadingIndicator').style.display = 'none';
+                // Define the Elasticsearch query
+                const query = {
+                    query: {
+                        bool: {
+                            filter: {
+                                geo_shape: {
+                                    location: {
+                                        shape: {
+                                            type: "polygon",
+                                            coordinates: parseWKT(wkt)
+                                        },
+                                        relation: "intersects"
+                                    }
+                                }
+                            }
+                        }
                     }
-                }, 1500); // Simulate network delay
+                };
+
+                // Make the API call to Elasticsearch
+                fetch('https://my-elasticsearch-project-d2bcb4.es.us-east-1.aws.elastic.cloud:443/pc-data-access-idx-000001/_search', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'ApiKey bFhqM1lKVUJWM0R0WUMtaWNDWHE6aF92MDZfelNqeFM5N1UtMXZuTjVLdw=='
+                    },
+                    body: JSON.stringify(query)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Process the search results
+                    if (data.hits && data.hits.hits) {
+                        displayResults(data.hits.hits);
+                    } else {
+                        showError('No results found.');
+                    }
+                })
+                .catch(error => {
+                    showError('An error occurred while searching. Please try again.');
+                    console.error('Search error:', error);
+                })
+                .finally(() => {
+                    // Hide loading indicator
+                    document.getElementById('loadingIndicator').style.display = 'none';
+                });
             }
+
 
             // Function to get mock results
             function getMockResults() {
