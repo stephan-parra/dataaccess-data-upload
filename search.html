@@ -256,11 +256,6 @@
             <p>Searching for data...</p>
         </div>
 
-        <div id="queryDisplay" class="query-display" style="display: none;">
-            <h3>Elasticsearch Query</h3>
-            <pre id="queryText"></pre>
-        </div>
-
         <div class="results-container" id="resultsContainer">
             <div class="results-header">
                 <h2>Search Results</h2>
@@ -458,11 +453,6 @@
                     }
                 };
 
-                // Display the query on the page
-                const queryDisplay = document.getElementById('queryDisplay');
-                const queryText = document.getElementById('queryText');
-                queryText.textContent = JSON.stringify(query, null, 2);
-                queryDisplay.style.display = 'block';
                 // CORS proxy URL
                 const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
                 // Elasticsearch URL
@@ -580,16 +570,18 @@
                     }
 
                     resultCard.innerHTML = `
-                        <div class="result-title">${result.title}</div>
+                        <div class="result-title">${result._source.short_description}</div>
                         <div class="result-meta">
-                            <div><strong>Owner:</strong> ${result.owner}</div>
-                            <div><strong>Date:</strong> ${result.date}</div>
-                            <div><strong>Type:</strong> ${result.dataType} (${result.fileFormat})</div>
+                            <div><strong>Owner:</strong> ${result._source.owner}</div>
+                            <div><strong>Captured Date:</strong> ${result._source.captured_date}</div>
+                            <div><strong>File Type:</strong> ${result._source.file_format}</div>
+                            <div><strong>File Size:</strong> ${result._source.file_size}</div>
+                            <div><strong>Price:</strong> ${result._source.price}</div>
                         </div>
-                        <div class="result-description">${result.description}</div>
+                        <!--<div class="result-description">${result._source.tags}</div>-->
                         ${tagsHtml}
                         <button class="search-button" onclick="alert('Download functionality would be implemented here')">
-                            <i class="fas fa-download"></i> Download
+                            <i class="fas fa-download"></i> Buy Now
                         </button>
                     `;
 
