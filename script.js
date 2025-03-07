@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', function () {
             console.log("Capture date field found, setting value to:", captureDate);
             captureDateField.value = captureDate;
         } else {
-            console.warn("Capture date field not found with ID 'capture_date'");
+            console.warn("Capture date field not found with ID 'captured_date'");
         }
 
         // Check if expire_date field exists
@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', function () {
             'tags': 'tag1,tag2,tag3',
             'owner': 'Data Collection Owner',
             'data_type': 'PDF',
-            'capture_date': captureDate,
+            'captured_date': captureDate,
             'expire_date': expireDateStr
         };
 
