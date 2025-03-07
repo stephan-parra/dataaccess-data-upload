@@ -112,9 +112,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             console.log('Submitting data:', jsonData);
-
-            // Submit data to ElasticSearch
-            submitToElasticSearch(jsonData);
         });
     }
 
@@ -231,25 +228,6 @@ document.addEventListener('DOMContentLoaded', function () {
     function showError(message) {
         messageContainer.textContent = message;
         messageContainer.className = 'submission-message error';
-        messageContainer.style.display = 'block';
-
-        // Scroll to message
-        messageContainer.scrollIntoView({ behavior: 'smooth' });
-
-        // Hide message after 5 seconds
-        setTimeout(() => {
-            messageContainer.style.display = 'none';
-        }, 5000);
-    }
-
-    // Function to submit data to ElasticSearch
-    function submitToElasticSearch(data) {
-        // Placeholder for ElasticSearch submission
-        console.log('Submitting to ElasticSearch:', data);
-
-        // Show success message
-        messageContainer.textContent = 'Data submitted successfully!';
-        messageContainer.className = 'submission-message success';
         messageContainer.style.display = 'block';
 
         // Scroll to message

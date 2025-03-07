@@ -214,26 +214,37 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Submitting data:', jsonData);
 
             // Submit to Elasticsearch via CORS proxy
+            // Submit to the web service endpoint via CORS proxy
             const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
-            // Updated Elasticsearch URL
-            const elasticsearchUrl = 'https://my-elasticsearch-project-d2bcb4.es.us-east-1.aws.elastic.cloud:443/pc-data-access-idx-000001/_doc';
+            // Updated web service URL
+            const webServiceUrl = 'https://dataaccess-portal-poc-submit-elastic.onrender.com/submit/';
 
-            console.log('Sending request to:', proxyUrl + elasticsearchUrl);
+            console.log('Sending request to:', proxyUrl + webServiceUrl);
 
-            fetch(proxyUrl + elasticsearchUrl, {
+            // Prepare the JSON payload with the required structure
+            const payload = {
+                data: jsonData
+            };
+            fetch(proxyUrl + webServiceUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'Authorization': 'ApiKey bFhqM1lKVUJWM0R0WUMtaWNDWHE6aF92MDZfelNqeFM5N1UtMXZuTjVLdw=='
+                    'Accept': 'application/json'
                 },
-                body: JSON.stringify(jsonData)
+                body: JSON.stringify(payload)
             })
             .then(response => {
+                const contentType = response.headers.get('content-type');
                 if (!response.ok) {
                     throw new Error('Network response was not ok: ' + response.statusText);
                 }
-                return response.json();
+                if (contentType && contentType.includes('application/json')) {
+                    return response.json();
+                } else {
+                    return response.text().then(text => {
+                        throw new Error('Expected JSON, but received: ' + text);
+                    });
+                }
             })
             .then(data => {
                 console.log('Success:', data);
@@ -254,7 +265,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             })
             .catch(error => {
-                console.error('Error submitting to Elasticsearch:', error);
+                console.error('Error submitting to web service:', error);
                 displayError(error);
 
                 // Check if the error is related to CORS
@@ -264,6 +275,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
                 }
             });
+
+
         });
     }
 
