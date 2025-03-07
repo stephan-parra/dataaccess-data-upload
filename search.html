@@ -455,23 +455,22 @@
 
                 // CORS proxy URL
                 const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
-                // Elasticsearch URL
-                const elasticsearchUrl = 'https://my-elasticsearch-project-d2bcb4.es.us-east-1.aws.elastic.cloud:443/pc-data-access-idx-000001/_search';
+                // Updated web service URL
+                const webServiceUrl = 'https://dataaccess-portal-poc-submit-elastic.onrender.com/search/';
 
-                // Make the API call to Elasticsearch via the CORS proxy
-                fetch(proxyUrl + elasticsearchUrl, {
+                // Make the API call to the new Render.com endpoint via the CORS proxy
+                fetch(proxyUrl + webServiceUrl, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'ApiKey bFhqM1lKVUJWM0R0WUMtaWNDWHE6aF92MDZfelNqeFM5N1UtMXZuTjVLdw=='
+                        'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(query)
+                    body: JSON.stringify({ wkt })
                 })
                 .then(response => response.json())
                 .then(data => {
                     // Process the search results
-                    if (data.hits && data.hits.hits) {
-                        displayResults(data.hits.hits);
+                    if (data.results && data.results.length > 0) {
+                        displayResults(data.results);
                     } else {
                         showError('No results found.');
                     }
@@ -484,6 +483,8 @@
                     // Hide loading indicator
                     document.getElementById('loadingIndicator').style.display = 'none';
                 });
+
+
             }
 
 
