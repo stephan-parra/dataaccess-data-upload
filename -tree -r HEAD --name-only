@@ -1,0 +1,124 @@
+[33mcommit a6970e93a4bc14e799c46628ba938f062fe7d397[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Author: Stephan Parra <stephan.parra@pelicancorp.com>
+Date:   Tue Mar 4 14:18:53 2025 +0000
+
+    Add external JavaScript file
+
+[1mdiff --git a/script.js b/script.js[m
+[1mnew file mode 100644[m
+[1mindex 0000000..84a5fdc[m
+[1m--- /dev/null[m
+[1m+++ b/script.js[m
+[36m@@ -0,0 +1,111 @@[m
+[32m+[m[32m// Set default date for captured_date and format the upload_date with current date and time[m
+[32m+[m[32mwindow.addEventListener('DOMContentLoaded', function () {[m
+[32m+[m[32m    // Set captured_date to today's date[m
+[32m+[m[32m    const today = new Date();[m
+[32m+[m[32m    const year = today.getFullYear();[m
+[32m+[m[32m    const month = String(today.getMonth() + 1).padStart(2, '0');[m
+[32m+[m[32m    const day = String(today.getDate()).padStart(2, '0');[m
+[32m+[m[32m    const formattedDate = `${year}-${month}-${day}`;[m
+[32m+[m
+[32m+[m[32m    document.getElementById('captured_date').value = formattedDate;[m
+[32m+[m
+[32m+[m[32m    // Set upload_date to current date and time in a readable format[m
+[32m+[m[32m    const hours = String(today.getHours()).padStart(2, '0');[m
+[32m+[m[32m    const minutes = String(today.getMinutes()).padStart(2, '0');[m
+[32m+[m[32m    const seconds = String(today.getSeconds()).padStart(2, '0');[m
+[32m+[m[32m    const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;[m
+[32m+[m
+[32m+[m[32m    document.getElementById('upload_date').value = formattedDateTime;[m
+[32m+[m[32m});[m
+[32m+[m
+[32m+[m[32m// Function to display response messages[m
+[32m+[m[32mfunction displayResponse(type, message) {[m
+[32m+[m[32m    const responseElement = document.getElementById('response');[m
+[32m+[m[32m    responseElement.textContent = message;[m
+[32m+[m[32m    responseElement.className = 'response ' + type;[m
+[32m+[m[32m    responseElement.style.display = 'block';[m
+[32m+[m
+[32m+[m[32m    // Scroll to response[m
+[32m+[m[32m    responseElement.scrollIntoView({ behavior: 'smooth', block: 'center' });[m
+[32m+[m
+[32m+[m[32m    // Hide after 5 seconds[m
+[32m+[m[32m    setTimeout(() => {[m
+[32m+[m[32m        responseElement.style.opacity = '0';[m
+[32m+[m[32m        setTimeout(() => {[m
+[32m+[m[32m            responseElement.style.display = 'none';[m
+[32m+[m[32m            responseElement.style.opacity = '1';[m
+[32m+[m[32m        }, 500);[m
+[32m+[m[32m    }, 5000);[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mdocument.getElementById('dataForm').addEventListener('submit', function (e) {[m
+[32m+[m[32m    e.preventDefault();[m
+[32m+[m
+[32m+[m[32m    // Get form data[m
+[32m+[m[32m    const formData = new FormData(this);[m
+[32m+[m[32m    const data = {};[m
+[32m+[m
+[32m+[m[32m    // Convert FormData to JSON object[m
+[32m+[m[32m    formData.forEach((value, key) => {[m
+[32m+[m[32m        // Handle tags as an array[m
+[32m+[m[32m        if (key === 'tags' && value) {[m
+[32m+[m[32m            data[key] = value.split(',').map(tag => tag.trim());[m
+[32m+[m[32m        } else {[m
+[32m+[m[32m            data[key] = value;[m
+[32m+[m[32m        }[m
+[32m+[m[32m    });[m
+[32m+[m
+[32m+[m[32m    // Format dates properly[m
+[32m+[m[32m    if (data.captured_date) {[m
+[32m+[m[32m        data.captured_date = data.captured_date + 'T00:00:00Z';[m
+[32m+[m[32m    }[m
+[32m+[m[32m    // Upload date is already formatted as text, but we'll convert it to ISO format for the API[m
+[32m+[m[32m    if (data.upload_date) {[m
+[32m+[m[32m        const uploadDate = new Date(data.upload_date.replace(' ', 'T'));[m
+[32m+[m[32m        data.upload_date = uploadDate.toISOString();[m
+[32m+[m[32m    }[m
+[32m+[m[32m    if (data.expire_date) {[m
+[32m+[m[32m        data.expire_date = data.expire_date + 'T00:00:00Z';[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    // Elasticsearch API endpoint - replace with your actual endpoint[m
+[32m+[m[32m    const apiUrl = '/api/submit-data'; // Replace with your actual API endpoint[m
+[32m+[m
+[32m+[m[32m    // Send data to backend[m
+[32m+[m[32m    fetch(apiUrl, {[m
+[32m+[m[32m        method: 'POST',[m
+[32m+[m[32m        headers: {[m
+[32m+[m[32m            'Content-Type': 'application/json'[m
+[32m+[m[32m        },[m
+[32m+[m[32m        body: JSON.stringify(data)[m
+[32m+[m[32m    })[m
+[32m+[m[32m        .then(response => {[m
+[32m+[m[32m            if (!response.ok) {[m
+[32m+[m[32m                throw new Error('Network response was not ok');[m
+[32m+[m[32m            }[m
+[32m+[m[32m            return response.json();[m
+[32m+[m[32m        })[m
+[32m+[m[32m        .then(result => {[m
+[32m+[m[32m            displayResponse('success', 'Data successfully submitted!');[m
+[32m+[m[32m            document.getElementById('dataForm').reset();[m
+[32m+[m
+[32m+[m[32m            // Reset captured_date to current date after form reset[m
+[32m+[m[32m            const today = new Date();[m
+[32m+[m[32m            const year = today.getFullYear();[m
+[32m+[m[32m            const month = String(today.getMonth() + 1).padStart(2, '0');[m
+[32m+[m[32m            const day = String(today.getDate()).padStart(2, '0');[m
+[32m+[m[32m            const formattedDate = `${year}-${month}-${day}`;[m
+[32m+[m[32m            document.getElementById('captured_date').value = formattedDate;[m
+[32m+[m
+[32m+[m[32m            // Reset upload_date to current date and time[m
+[32m+[m[32m            const hours = String(today.getHours()).padStart(2, '0');[m
+[32m+[m[32m            const minutes = String(today.getMinutes()).padStart(2, '0');[m
+[32m+[m[32m            const seconds = String(today.getSeconds()).padStart(2, '0');[m
+[32m+[m[32m            const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;[m
+[32m+[m[32m            document.getElementById('upload_date').value = formattedDateTime;[m
+[32m+[m[32m        })[m
+[32m+[m[32m        .catch(error => {[m
+[32m+[m[32m            console.error('Error:', error);[m
+[32m+[m[32m            displayResponse('error', 'Error submitting data: ' + error.message);[m
+[32m+[m[32m        });[m
+[32m+[m[32m});[m
+\ No newline at end of file[m
