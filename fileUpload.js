@@ -225,7 +225,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const payload = {
                 data: jsonData
             };
-            fetch(proxyUrl + webServiceUrl, {
+            fetch(webServiceUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

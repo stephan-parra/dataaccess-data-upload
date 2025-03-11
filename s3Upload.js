@@ -27,7 +27,8 @@ document.addEventListener('DOMContentLoaded', function () {
         const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
         const targetUrl = 'https://dataaccess-portal-poc-file-upload.onrender.com/upload/';
 
-        fetch(proxyUrl + targetUrl, {
+        //Changed below from fetch(proxyUrl + targetUrl, to remove the proxyUrl from the fetch request
+        fetch(targetUrl, {
             method: 'POST',
             body: formData,
             headers: {
