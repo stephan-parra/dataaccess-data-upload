@@ -457,6 +457,7 @@
                 const webServiceUrl = 'https://dataaccess-portal-poc-submit-elastic.onrender.com/search/';
 
                 // Make the API call to the new Render.com endpoint via the CORS proxy
+                //Changed the below from fetch(proxyUrl + webServiceUrl)
                 fetch(webServiceUrl, {
                     method: 'POST',
                     headers: {
