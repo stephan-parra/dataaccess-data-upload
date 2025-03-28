@@ -402,3 +402,18 @@ textarea {
     height: 3px;
     background-color: #1565C0;
 }
+
+.trial-message {
+    text-align: center;
+    padding: 10px;
+    margin-bottom: 20px;
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    color: #6c757d;
+    font-size: 0.9em;
+}
+
+.trial-message p {
+    margin: 0;
+}
