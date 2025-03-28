@@ -417,3 +417,8 @@ textarea {
 .trial-message p {
     margin: 0;
 }
+
+.expired-trial {
+    opacity: 0.6;
+    pointer-events: none;
+}

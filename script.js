@@ -1,4 +1,13 @@
 document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('dataForm');
+        if (form) {
+            const formElements = form.elements;
+            for (let i = 0; i < formElements.length; i++) {
+                formElements[i].disabled = true;
+            }
+        }
+    });
     const form = document.getElementById('dataForm');
     const messageContainer = document.createElement('div');
     messageContainer.id = 'submission-message';
