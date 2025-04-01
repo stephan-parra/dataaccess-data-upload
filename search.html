@@ -210,9 +210,9 @@
             <h1>DataAccess Portal - Search</h1>
             <!--<p>Search for data using spatial queries and filters</p>-->
         </div>
-        <div class="trial-message">
+        <!--<div class="trial-message">
             <p>Trial period has expired. Search functionality is currently unavailable.</p>
-        </div>
+        </div>-->
         <div class="nav-links">
             <a href="index.html"><i class="fas fa-upload"></i> Upload Data</a>
             <a href="search.html" class="active"><i class="fas fa-search"></i> Search Data</a>
@@ -589,52 +589,5 @@
             }
         });
     </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Disable search functionality
-            const searchForm = document.querySelector('.search-form');
-            if (searchForm) {
-                searchForm.classList.add('expired-trial');
-                const formElements = searchForm.querySelectorAll('input, textarea, button, select');
-                formElements.forEach(element => {
-                    element.disabled = true;
-                });
-            }
-        
-            // Disable map interaction
-            if (typeof map !== 'undefined') {
-                map.dragging.disable();
-                map.touchZoom.disable();
-                map.doubleClickZoom.disable();
-                map.scrollWheelZoom.disable();
-                map.boxZoom.disable();
-                map.keyboard.disable();
-                if (map.tap) map.tap.disable();
-            }
-        
-            // Add overlay to map
-            const mapElement = document.getElementById('map');
-            if (mapElement) {
-                const overlay = document.createElement('div');
-                overlay.style.position = 'absolute';
-                overlay.style.top = '0';
-                overlay.style.left = '0';
-                overlay.style.width = '100%';
-                overlay.style.height = '100%';
-                overlay.style.backgroundColor = 'rgba(200, 200, 200, 0.7)';
-                overlay.style.zIndex = '1000';
-                overlay.style.display = 'flex';
-                overlay.style.justifyContent = 'center';
-                overlay.style.alignItems = 'center';
-                overlay.style.color = '#333';
-                overlay.style.fontSize = '18px';
-                overlay.style.fontWeight = 'bold';
-                overlay.textContent = 'Search functionality unavailable';
-                mapElement.style.position = 'relative';
-                mapElement.appendChild(overlay);
-            }
-        });
-        </script>
 </body>
-
 </html>
