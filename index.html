@@ -78,56 +78,73 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="3rd_partydata_link">3rd Party Data Link</label>
+                            <label for="3rd_partydata_link">Third Party Data Link</label>
                             <input type="url" id="3rd_partydata_link" name="3rd_partydata_link">
                         </div>
 
                         <div class="form-group">
-                            <label for="owner" class="required">Owner</label>
-                            <input type="text" id="owner" name="owner" required>
-                        </div>
-
-                        <div class="form-group">
                             <label for="captured_date" class="required">Captured Date</label>
-                            <input type="date" id="captured_date" name="captured_date" required>
+                            <input type="date" id="data_captured_date" name="data_captured_date" required>
                         </div>
 
                         <div class="form-group">
                             <label for="expire_date">Expiry Date</label>
-                            <input type="date" id="expire_date" name="expire_date">
+                            <input type="date" id="data_expire_date" name="data_expire_date">
                         </div>
 
                         <div class="form-group">
                             <label for="tags">Tags (comma separated)</label>
                             <input type="text" id="tags" name="tags">
                         </div>
+
+                        <div class="form-group">
+                            <label for="data_owner_company_name" class="required">Data Owner Company Name</label>
+                            <input type="text" id="data_owner_company_name" name="data_owner_company_name" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="data_owner_id" class="required">Data Owner ID</label>
+                            <input type="text" id="data_owner_id" name="data_owner_id" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="data_region" class="required">Data Region</label>
+                            <input type="text" id="data_region" name="data_region" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="number_of_files" class="required">Number of Files</label>
+                            <input type="number" id="number_of_files" name="number_of_files" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="product_name" class="required">Product Name</label>
+                            <input type="text" id="product_name" name="product_name" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="price">Price</label>
+                            <input type="text" id="data_resell_price" name="data_resell_price" placeholder="Enter price (e.g. 10.99)" 
+                                pattern="^\d*(\.\d{0,2})?$" title="Please enter a valid price with up to 2 decimal places" required>
+                        </div>                        
+
                         <div class="form-group wide-field">
                             <label for="short_description" class="required">Short Description</label>
                             <input type="text" id="short_description" name="short_description" required maxlength="200"
                                 placeholder="Enter up to 200 characters">
                         </div>
 
-                        <div class="form-group">
-                            <label for="price">Price</label>
-                            <input type="text" id="price" name="price" placeholder="Enter price (e.g. 10.99)" 
-                                pattern="^\d*(\.\d{0,2})?$" title="Please enter a valid price with up to 2 decimal places" required>
-                        </div>
-
-
-
-
                         <div class="form-group full-width">
                             <label for="long_description">Long Description</label>
                             <textarea id="long_description" name="long_description"></textarea>
                         </div>
-
                     </div>
 
                     <div class="display-field-container full-width">
                         <h3>File Information</h3>
                         <div class="form-group">
                             <label for="upload_date">Upload Date</label>
-                            <input type="text" id="upload_date" name="upload_date" class="display-field" readonly>
+                            <input type="text" id="data_upload_date" name="data_upload_date" class="display-field" readonly>
                         </div>
 
                         <div class="form-group">

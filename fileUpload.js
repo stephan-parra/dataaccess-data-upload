@@ -1,9 +1,9 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const fileUploadArea = document.getElementById('file-upload-area');
     const fileInput = document.getElementById('file_upload');
     const fileInfo = document.querySelector('.file-info');
     const fileName = document.querySelector('.file-name');
-    const uploadDateField = document.getElementById('upload_date');
+    const uploadDateField = document.getElementById('data_upload_date');
     const fileSizeField = document.getElementById('file_size');
     const fileNameField = document.getElementById('file_name');
     const fileFormatField = document.getElementById('file_format');
@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Handle file input change
-    fileInput.addEventListener('change', function() {
+    fileInput.addEventListener('change', function () {
         handleFiles(this.files);
     });
 
@@ -233,48 +233,48 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 body: JSON.stringify(payload)
             })
-            .then(response => {
-                const contentType = response.headers.get('content-type');
-                if (!response.ok) {
-                    throw new Error('Network response was not ok: ' + response.statusText);
-                }
-                if (contentType && contentType.includes('application/json')) {
-                    return response.json();
-                } else {
-                    return response.text().then(text => {
-                        throw new Error('Expected JSON, but received: ' + text);
-                    });
-                }
-            })
-            .then(data => {
-                console.log('Success:', data);
-                displayResponse(data);
+                .then(response => {
+                    const contentType = response.headers.get('content-type');
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok: ' + response.statusText);
+                    }
+                    if (contentType && contentType.includes('application/json')) {
+                        return response.json();
+                    } else {
+                        return response.text().then(text => {
+                            throw new Error('Expected JSON, but received: ' + text);
+                        });
+                    }
+                })
+                .then(data => {
+                    console.log('Success:', data);
+                    displayResponse(data);
 
-                // Reset form
-                form.reset();
-                if (fileInfo) {
-                    fileInfo.style.display = 'none';
-                }
-                if (wktOutput) {
-                    wktOutput.value = '';
-                }
+                    // Reset form
+                    form.reset();
+                    if (fileInfo) {
+                        fileInfo.style.display = 'none';
+                    }
+                    if (wktOutput) {
+                        wktOutput.value = '';
+                    }
 
-                // Reset map if the function exists
-                if (window.resetMap && typeof window.resetMap === 'function') {
-                    window.resetMap();
-                }
-            })
-            .catch(error => {
-                console.error('Error submitting to web service:', error);
-                displayError(error);
+                    // Reset map if the function exists
+                    if (window.resetMap && typeof window.resetMap === 'function') {
+                        window.resetMap();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error submitting to web service:', error);
+                    displayError(error);
 
-                // Check if the error is related to CORS
-                if (error.message.includes('CORS') || error.message.includes('Failed to fetch')) {
-                    displayError({
-                        message: 'CORS error: Please ensure you have temporary access to the demo server. Visit https://cors-anywhere.herokuapp.com/ and request temporary access.'
-                    });
-                }
-            });
+                    // Check if the error is related to CORS
+                    if (error.message.includes('CORS') || error.message.includes('Failed to fetch')) {
+                        displayError({
+                            message: 'CORS error: Please ensure you have temporary access to the demo server. Visit https://cors-anywhere.herokuapp.com/ and request temporary access.'
+                        });
+                    }
+                });
 
 
         });
@@ -285,7 +285,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const submitButton = form.querySelector('button[type="submit"]');
 
         if (submitButton) {
-            submitButton.addEventListener('click', function(e) {
+            submitButton.addEventListener('click', function (e) {
                 const wktOutput = document.getElementById('wkt_output');
                 const wktErrorMessage = document.getElementById('wkt_error_message') || createWktErrorMessage();
 

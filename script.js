@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function initializeFormDefaults() {
         // Set current date as upload date
         const today = new Date();
-        const uploadDateField = document.getElementById('upload_date');
+        const uploadDateField = document.getElementById('data_upload_date');
         if (uploadDateField) {
             uploadDateField.value = today.toISOString().split('T')[0];
         }
@@ -45,12 +45,12 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         // Check if capture_date field exists
-        const captureDateField = document.getElementById('captured_date');
+        const captureDateField = document.getElementById('data_captured_date');
         if (captureDateField) {
             console.log("Capture date field found, setting value to:", captureDate);
             captureDateField.value = captureDate;
         } else {
-            console.warn("Capture date field not found with ID 'captured_date'");
+            console.warn("Capture date field not found with ID 'data_captured_date'");
         }
 
         // Check if expire_date field exists
