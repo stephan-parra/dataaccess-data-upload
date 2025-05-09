@@ -537,9 +537,16 @@
 
                     // Initialize new map in left container
                     overlayMap = L.map('overlay-map', {
-                        zoomControl: true,
+                        zoomControl: false,
                         maxZoom: 19
                     }).setView([-36.8485, 174.7633], 16);
+
+                    // Disable all zoom & interaction controls
+                    overlayMap.scrollWheelZoom.disable();
+                    overlayMap.touchZoom.disable();
+                    overlayMap.doubleClickZoom.disable();
+                    overlayMap.boxZoom.disable();
+                    overlayMap.keyboard.disable();
 
                     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                         maxZoom: 19,
@@ -569,15 +576,27 @@
                     document.getElementById("data_resell_price").textContent = `Price: $${data.data_resell_price || "0.00"}`;
                     const previewUri = "https://raw.githubusercontent.com/stephan-parra/dataaccess-data-upload/make_data_access_compatible/Data-Samples/Data-Preview.png";
                     const previewLink = document.getElementById("preview_link");
+                    const sampleImage = document.getElementById("sample_image");
+                    const imageWrapper = document.getElementById("sample_image_wrapper");
 
                     if (previewUri) {
                         previewLink.href = previewUri;
                         previewLink.textContent = "View Sample Product";
-                        previewLink.style.display = "inline";
+                        previewLink.style.display = "inline-block";
+
+                        // Show image preview if it's a PNG
+                        if (previewUri.toLowerCase().endsWith(".png")) {
+                            sampleImage.src = previewUri;
+                            imageWrapper.style.display = "block";
+                        } else {
+                            sampleImage.src = "";
+                            imageWrapper.style.display = "none";
+                        }
                     } else {
-                        //previewLink.href = "#";
-                        previewLink.textContent = "Not available";
-                        //previewLink.style.display = "none";
+                        previewLink.href = "#";
+                        previewLink.style.display = "none";
+                        sampleImage.src = "";
+                        imageWrapper.style.display = "none";
                     }
 
                 }, 100);
@@ -617,6 +636,10 @@
         <p id="data_resell_price"><strong>Price:</strong> $...</p>
         <p id="preview_data_link">
             <a href="#" target="_blank" id="preview_link" class="preview-button">View Sample Product</a>
+            <!-- Image container (initially hidden) -->
+            <div id="sample_image_wrapper" class="sample-image-frame" style="display: none;">
+            <img id="sample_image" src="" alt="Sample Preview" />
+            </div>
         </p>
         </div>
     </div>
