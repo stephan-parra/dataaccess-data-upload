@@ -489,14 +489,14 @@
                             <div><strong>Owner:</strong> ${result._source.data_owner_company_name || 'N/A'}</div>
                             <div><strong>Captured Date:</strong> ${result._source.data_captured_date || 'N/A'}</div>
                             <div><strong>File Type:</strong> ${result._source.file_format || 'N/A'}</div>
-                            <div><strong>File Size:</strong> ${formatFileSize(result._source.file_size)}</div>
                             <div><strong>Price:</strong> $${result._source.data_resell_price || '0.00'}</div>
                         </div>
                         <!--<div class="result-description">${result._source.tags}</div>-->
                         ${tagsHtml}
-                        <button class="search-button" onclick='openOverlay("${result._source.geo_location_area}")'>
+                        <button class="search-button" onclick='openOverlay("${result._source.geo_location_area}", ${JSON.stringify(result._source)})'>
                             <i class="fas fa-download"></i> Buy Now
                         </button>
+
 
                     `;
 
@@ -524,44 +524,63 @@
                 }
             }
 
-            function openOverlay(wkt) {
+            function openOverlay(wkt, data) {
                 const overlay = document.getElementById('overlay');
                 overlay.style.display = 'flex';
 
-                // Wait for the overlay to be fully visible before initializing Leaflet
-                requestAnimationFrame(() => {
-                    setTimeout(() => {
-                        // Clean up old map if present
-                        if (overlayMap !== null) {
-                            overlayMap.remove();
-                            overlayMap = null;
-                        }
+                setTimeout(() => {
+                    // Clean up previous map if it exists
+                    if (overlayMap !== null) {
+                        overlayMap.remove();
+                        overlayMap = null;
+                    }
 
-                        overlayMap = L.map('overlay-map', {
-                            zoomControl: true,
+                    // Initialize new map in left container
+                    overlayMap = L.map('overlay-map', {
+                        zoomControl: true,
+                        maxZoom: 19
+                    }).setView([-36.8485, 174.7633], 16);
+
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        maxZoom: 19,
+                        attribution: '&copy; OpenStreetMap contributors'
+                    }).addTo(overlayMap);
+
+                    // Add WKT polygon to the map
+                    const polygon = wktToPolygon(wkt);
+                    if (polygon) {
+                        polygon.addTo(overlayMap);
+                        overlayMap.fitBounds(polygon.getBounds(), {
+                            padding: [10, 10],
                             maxZoom: 19
-                        }).setView([-36.8485, 174.7633], 16);
+                        });
+                    }
 
-                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                            maxZoom: 19,
-                            attribution: '&copy; OpenStreetMap contributors'
-                        }).addTo(overlayMap);
+                    // Ensure proper rendering
+                    setTimeout(() => {
+                        overlayMap.invalidateSize();
+                    }, 100);
 
-                        const polygon = wktToPolygon(wkt);
-                        if (polygon) {
-                            polygon.addTo(overlayMap);
-                            overlayMap.fitBounds(polygon.getBounds(), {
-                                padding: [10, 10],
-                                maxZoom: 19
-                            });
-                        }
+                    // Populate product detail fields in the right panel
+                    document.getElementById("product_name").textContent = data.product_name || "Unnamed Product";
+                    document.getElementById("short_description").textContent = `Short Description: ${data.short_description || "N/A"}`;
+                    document.getElementById("long_description").textContent = `Long Description: ${data.long_description || "N/A"}`;
+                    document.getElementById("file_format").textContent = `File Format: ${data.file_format || "N/A"}`;
+                    document.getElementById("data_resell_price").textContent = `Price: $${data.data_resell_price || "0.00"}`;
+                    const previewUri = data.preview_data_storage_uri;
+                    const previewLink = document.getElementById("preview_link");
 
-                        // 🔧 Recalculate layout after rendering
-                        setTimeout(() => {
-                            overlayMap.invalidateSize();
-                        }, 0);
-                    }, 0);
-                });
+                    if (previewUri) {
+                        previewLink.href = previewUri;
+                        previewLink.textContent = "Open Sample";
+                        previewLink.style.display = "inline";
+                    } else {
+                        //previewLink.href = "#";
+                        previewLink.textContent = "Not available";
+                        //previewLink.style.display = "none";
+                    }
+
+                }, 100);
             }
 
 
@@ -579,11 +598,29 @@
     </script>
 
     <div id="overlay" class="overlay">
-        <div class="overlay-content">
+    <div class="overlay-content two-column">
+
+        <!-- Close Button -->
         <button class="overlay-close-btn" onclick="closeOverlay()" aria-label="Close overlay">×</button>
+
+        <!-- Map on the left -->
+        <div class="overlay-left">
         <div id="overlay-map"></div>
         </div>
-    </div>  
+
+        <!-- Product details on the right -->
+        <div class="overlay-right">
+        <h2 id="product_name">Product Name</h2>
+        <p id="short_description"><strong>Short Description:</strong> ...</p>
+        <p id="long_description"><strong>Long Description:</strong> ...</p>
+        <p id="file_format"><strong>File Format:</strong> ...</p>
+        <p id="data_resell_price"><strong>Price:</strong> $...</p>
+        <p id="preview_data_link">
+            <strong>View Sample Data:</strong> <a href="#" target="_blank" id="preview_link">Loading...</a>
+        </p>
+        </div>
+    </div>
+    </div>
     
 </body>
 </html>

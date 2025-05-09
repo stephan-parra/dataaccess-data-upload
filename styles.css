@@ -492,3 +492,57 @@ textarea {
 .overlay-close-btn:hover {
     color: #000;
 }
+
+.overlay-content.two-column {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    padding: 20px;
+}
+
+.overlay-left {
+    flex: 1;
+    min-width: 50%;
+    height: 100%;
+}
+
+#overlay-map {
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+}
+
+.overlay-right {
+    flex: 1;
+    padding: 10px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.overlay-right h2 {
+    margin-top: 0;
+    font-size: 24px;
+    color: #333;
+}
+
+.overlay-right p {
+    margin: 10px 0;
+    font-size: 15px;
+}
+#preview_data_link a {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 8px 16px;
+    background-color: #2196F3;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+}
+
+#preview_data_link a:hover {
+    background-color: #1976D2;
+}
