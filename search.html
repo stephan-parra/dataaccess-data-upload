@@ -436,6 +436,24 @@
 
                 // Define the Elasticsearch query
                 const query = {
+                    _source: [
+                    "data_api",
+                    "data_captured_date",
+                    "data_expire_date",
+                    "data_owner_company_name",
+                    "data_region",
+                    "data_resell_price",
+                    "data_type",
+                    "data_upload_date",
+                    "file_format",
+                    "file_size",
+                    "geo_location_area",
+                    "geo_location_point",
+                    "long_description",
+                    "preview_data_storage_uri",
+                    "product_name",
+                    "short_description"  
+                    ],
                     query: {
                         bool: {
                             filter: {
