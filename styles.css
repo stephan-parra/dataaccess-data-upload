@@ -385,6 +385,7 @@ textarea {
     font-weight: 300;
     margin-left: 8px;
 }
+
 .portal-title {
     text-align: center;
     margin-bottom: 2rem;
@@ -421,4 +422,73 @@ textarea {
 .expired-trial {
     opacity: 0.6;
     pointer-events: none;
+}
+
+.overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.75);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+}
+
+.overlay-content {
+    position: relative;
+    width: 90%;
+    height: 90%;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    /* Stack content vertically */
+}
+
+#overlay-map {
+    flex: 1;
+    width: 100%;
+}
+
+.close-overlay {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    background-color: #f44336;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 14px;
+    font-size: 16px;
+    cursor: pointer;
+    z-index: 10000;
+}
+
+.overlay-close-btn {
+    position: absolute;
+    top: 0px;
+    right: 20px;
+    font-size: 48px;
+    font-weight: bold;
+    color: #333;
+    background: none;
+    border: none;
+    cursor: pointer;
+    z-index: 1000;
+    padding: 0;
+    line-height: 1;
+    width: auto;
+    height: auto;
+    display: inline;
+    transition: color 0.2s ease;
+}
+
+.overlay-close-btn:hover {
+    color: #000;
 }

@@ -270,6 +270,8 @@
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
     <script>
+        let overlayMap = null;
+
         document.addEventListener('DOMContentLoaded', function () {
             // Initialize map
             const map = L.map('map').setView([-36.8485, 174.7633], 15); // Auckland, NZ
@@ -328,25 +330,6 @@
 
                 wkt += "))";
                 return wkt;
-            }
-
-            // Function to convert WKT to Leaflet polygon
-            function wktToPolygon(wkt) {
-                try {
-                    // Simple WKT parser for POLYGON type
-                    const coordsText = wkt.replace('POLYGON((', '').replace('))', '');
-                    const coordPairs = coordsText.split(',').map(pair => pair.trim());
-
-                    const latLngs = coordPairs.map(pair => {
-                        const [lng, lat] = pair.split(' ').map(Number);
-                        return L.latLng(lat, lng);
-                    });
-
-                    return L.polygon(latLngs);
-                } catch (error) {
-                    console.error('Error parsing WKT:', error);
-                    return null;
-                }
             }
 
             // Event handler for when a shape is created
@@ -465,8 +448,15 @@
                     // Hide loading indicator
                     document.getElementById('loadingIndicator').style.display = 'none';
                 });
+            }
 
+            function formatFileSize(bytes) {
+                if (bytes === null || bytes === undefined || isNaN(bytes)) return 'N/A';
 
+                const units = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(1024));
+                const value = bytes / Math.pow(1024, i);
+                return `${value.toFixed(2)} ${units[i]}`;
             }
 
             // Function to display search results
@@ -499,20 +489,101 @@
                             <div><strong>Owner:</strong> ${result._source.data_owner_company_name || 'N/A'}</div>
                             <div><strong>Captured Date:</strong> ${result._source.data_captured_date || 'N/A'}</div>
                             <div><strong>File Type:</strong> ${result._source.file_format || 'N/A'}</div>
-                            <div><strong>File Size:</strong> ${result._source.file_size || 'N/A'} bytes</div>
+                            <div><strong>File Size:</strong> ${formatFileSize(result._source.file_size)}</div>
                             <div><strong>Price:</strong> $${result._source.data_resell_price || '0.00'}</div>
                         </div>
                         <!--<div class="result-description">${result._source.tags}</div>-->
                         ${tagsHtml}
-                        <button class="search-button" onclick="alert('Download functionality would be implemented here')">
+                        <button class="search-button" onclick='openOverlay("${result._source.geo_location_area}")'>
                             <i class="fas fa-download"></i> Buy Now
                         </button>
+
                     `;
 
                     resultsGrid.appendChild(resultCard);
                 });
             }
         });
+
+            // Function to convert WKT to Leaflet polygon
+            function wktToPolygon(wkt) {
+                try {
+                    // Simple WKT parser for POLYGON type
+                    const coordsText = wkt.replace('POLYGON((', '').replace('))', '');
+                    const coordPairs = coordsText.split(',').map(pair => pair.trim());
+
+                    const latLngs = coordPairs.map(pair => {
+                        const [lng, lat] = pair.split(' ').map(Number);
+                        return L.latLng(lat, lng);
+                    });
+
+                    return L.polygon(latLngs);
+                } catch (error) {
+                    console.error('Error parsing WKT:', error);
+                    return null;
+                }
+            }
+
+            function openOverlay(wkt) {
+                const overlay = document.getElementById('overlay');
+                overlay.style.display = 'flex';
+
+                // Wait for the overlay to be fully visible before initializing Leaflet
+                requestAnimationFrame(() => {
+                    setTimeout(() => {
+                        // Clean up old map if present
+                        if (overlayMap !== null) {
+                            overlayMap.remove();
+                            overlayMap = null;
+                        }
+
+                        overlayMap = L.map('overlay-map', {
+                            zoomControl: true,
+                            maxZoom: 19
+                        }).setView([-36.8485, 174.7633], 16);
+
+                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                            maxZoom: 19,
+                            attribution: '&copy; OpenStreetMap contributors'
+                        }).addTo(overlayMap);
+
+                        const polygon = wktToPolygon(wkt);
+                        if (polygon) {
+                            polygon.addTo(overlayMap);
+                            overlayMap.fitBounds(polygon.getBounds(), {
+                                padding: [10, 10],
+                                maxZoom: 19
+                            });
+                        }
+
+                        // 🔧 Recalculate layout after rendering
+                        setTimeout(() => {
+                            overlayMap.invalidateSize();
+                        }, 0);
+                    }, 0);
+                });
+            }
+
+
+            function closeOverlay() {
+                const overlay = document.getElementById('overlay');
+                overlay.style.display = 'none';
+
+                if (overlayMap !== null) {
+                    overlayMap.remove();  // Clean up Leaflet instance
+                    overlayMap = null;
+                }
+            }
+
+
     </script>
+
+    <div id="overlay" class="overlay">
+        <div class="overlay-content">
+        <button class="overlay-close-btn" onclick="closeOverlay()" aria-label="Close overlay">×</button>
+        <div id="overlay-map"></div>
+        </div>
+    </div>  
+    
 </body>
 </html>
