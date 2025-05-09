@@ -127,17 +127,17 @@ document.addEventListener('DOMContentLoaded', function () {
     // Function to validate form
     function validateForm() {
         // Check required fields
-        const requiredFields = ['file_name', 'file_format', 'short_description', 'owner', 'data_type'];
+        const requiredFields = ['file_name', 'file_format', 'short_description', 'data_owner_company_name', 'data_type'];
         let isValid = true;
 
         for (const fieldId of requiredFields) {
             const field = document.getElementById(fieldId);
             if (!field || !field.value.trim()) {
-                showError(`Please fill in the ${fieldId.replace('_', ' ')} field.`);
+                showError(`Please fill in the "${fieldId.replace(/_/g, ' ')}" field.`);
                 isValid = false;
                 break;
             }
-        }
+        }        
 
         // Check if file is selected
         const fileUpload = document.getElementById('file_upload');
