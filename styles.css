@@ -496,14 +496,19 @@ textarea {
 .overlay-content.two-column {
     display: flex;
     flex-direction: row;
-    gap: 20px;
-    padding: 20px;
+    gap: 24px;
+    padding: 24px;
+    background-color: #fff;
+    border-radius: 12px;
 }
 
 .overlay-left {
     flex: 1;
     min-width: 50%;
     height: 100%;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 
 #overlay-map {
@@ -514,7 +519,7 @@ textarea {
 
 .overlay-right {
     flex: 1;
-    padding: 10px;
+    padding: 10px 20px;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
@@ -524,13 +529,17 @@ textarea {
 .overlay-right h2 {
     margin-top: 0;
     font-size: 24px;
-    color: #333;
+    color: #2c3e50;
+    margin-bottom: 12px;
 }
 
 .overlay-right p {
-    margin: 10px 0;
+    margin: 8px 0;
     font-size: 15px;
+    color: #333;
+    line-height: 1.5;
 }
+
 #preview_data_link a {
     display: inline-block;
     margin-top: 10px;
@@ -544,5 +553,22 @@ textarea {
 }
 
 #preview_data_link a:hover {
+    background-color: #1976D2;
+}
+
+.preview-button {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 18px;
+    background-color: #2196F3;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 15px;
+    transition: background-color 0.2s ease;
+}
+
+.preview-button:hover {
     background-color: #1976D2;
 }
