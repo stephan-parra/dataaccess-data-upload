@@ -434,43 +434,6 @@
                 document.getElementById('resultsGrid').innerHTML = '';
                 hideError();
 
-                // Define the Elasticsearch query
-                const query = {
-                    _source: [
-                    "data_api",
-                    "data_captured_date",
-                    "data_expire_date",
-                    "data_owner_company_name",
-                    "data_region",
-                    "data_resell_price",
-                    "data_type",
-                    "data_upload_date",
-                    "file_format",
-                    "file_size",
-                    "geo_location_area",
-                    "geo_location_point",
-                    "long_description",
-                    "preview_data_storage_uri",
-                    "product_name",
-                    "short_description"  
-                    ],
-                    query: {
-                        bool: {
-                            filter: {
-                                geo_shape: {
-                                    geo_location_area: {
-                                        shape: {
-                                            type: "polygon",
-                                            coordinates: parseWKT(wkt)
-                                        },
-                                        relation: "intersects"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                };
-
                 // CORS proxy URL
                 const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
                 // Updated web service URL
@@ -506,62 +469,6 @@
 
             }
 
-            // Function to get mock results
-            function getMockResults() {
-                return [
-                    {
-                        id: 1,
-                        title: 'Auckland CBD Survey Data',
-                        owner: 'City Planning Department',
-                        date: '2023-05-15',
-                        dataType: 'GIS',
-                        fileFormat: 'Shapefile',
-                        description: 'Comprehensive survey data of Auckland CBD including building footprints, road networks, and utility infrastructure.',
-                        tags: ['Auckland', 'CBD', 'Survey', 'Infrastructure']
-                    },
-                    {
-                        id: 2,
-                        title: 'Waitemata Harbour Bathymetry',
-                        owner: 'Marine Research Institute',
-                        date: '2023-03-22',
-                        dataType: 'GeoTIFF',
-                        fileFormat: 'GeoTIFF',
-                        description: 'High-resolution bathymetric data of Waitemata Harbour collected using multibeam sonar.',
-                        tags: ['Harbour', 'Bathymetry', 'Marine', 'Waitemata']
-                    },
-                    {
-                        id: 3,
-                        title: 'Auckland Transport Network Analysis',
-                        owner: 'Auckland Transport',
-                        date: '2023-06-10',
-                        dataType: 'PDF',
-                        fileFormat: 'PDF',
-                        description: 'Analysis of public transport network efficiency and coverage in the Auckland metropolitan area.',
-                        tags: ['Transport', 'Network', 'Public', 'Analysis']
-                    },
-                    {
-                        id: 4,
-                        title: 'Urban Development Aerial Photography',
-                        owner: 'Urban Planning Office',
-                        date: '2023-04-05',
-                        dataType: 'Photo',
-                        fileFormat: 'JPEG',
-                        description: 'High-resolution aerial photographs of recent urban development projects in Auckland.',
-                        tags: ['Aerial', 'Urban', 'Development', 'Photography']
-                    },
-                    {
-                        id: 5,
-                        title: 'Subsurface Utility Survey',
-                        owner: 'Infrastructure Department',
-                        date: '2023-02-18',
-                        dataType: 'GPR',
-                        fileFormat: 'CSV',
-                        description: 'Ground Penetrating Radar survey data of subsurface utilities in central Auckland.',
-                        tags: ['GPR', 'Utilities', 'Subsurface', 'Survey']
-                    }
-                ];
-            }
-
             // Function to display search results
             function displayResults(results) {
                 const resultsGrid = document.getElementById('resultsGrid');
@@ -589,11 +496,11 @@
                     resultCard.innerHTML = `
                         <div class="result-title">${result._source.short_description}</div>
                         <div class="result-meta">
-                            <div><strong>Owner:</strong> ${result._source.owner}</div>
-                            <div><strong>Captured Date:</strong> ${result._source.captured_date}</div>
-                            <div><strong>File Type:</strong> ${result._source.file_format}</div>
-                            <div><strong>File Size:</strong> ${result._source.file_size}</div>
-                            <div><strong>Price:</strong> ${result._source.price}</div>
+                            <div><strong>Owner:</strong> ${result._source.data_owner_company_name || 'N/A'}</div>
+                            <div><strong>Captured Date:</strong> ${result._source.data_captured_date || 'N/A'}</div>
+                            <div><strong>File Type:</strong> ${result._source.file_format || 'N/A'}</div>
+                            <div><strong>File Size:</strong> ${result._source.file_size || 'N/A'} bytes</div>
+                            <div><strong>Price:</strong> $${result._source.data_resell_price || '0.00'}</div>
                         </div>
                         <!--<div class="result-description">${result._source.tags}</div>-->
                         ${tagsHtml}
