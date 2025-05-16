@@ -68,11 +68,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const payload = buildUploadPayload(formData, file);
 
     try {
-      const apiResponse = await fetch('https://h3dgyj60ml.execute-api.ap-southeast-2.amazonaws.com/dev/upload', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
+      const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+      const uploadApiUrl = 'https://h3dgyj60ml.execute-api.ap-southeast-2.amazonaws.com/dev/upload';
+
+      const apiResponse = await fetch(proxyUrl + uploadApiUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
 
       if (!apiResponse.ok) throw new Error(`UploadAPI error: ${apiResponse.statusText}`);
 
