@@ -71,6 +71,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
       const uploadApiUrl = 'https://h3dgyj60ml.execute-api.ap-southeast-2.amazonaws.com/dev/upload';
 
+      console.log("Payload to Upload API:", payload);
+
       const apiResponse = await fetch(proxyUrl + uploadApiUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
