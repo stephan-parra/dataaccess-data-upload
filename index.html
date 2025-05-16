@@ -7,18 +7,9 @@
     <title>DataAccess Portal - Upload</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-    <!-- Leaflet.draw CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" />
     <link rel="stylesheet" href="styles.css">
-    <!-- Leaflet JavaScript -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-    <!-- Leaflet.draw JavaScript -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
-    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1000.0.min.js"></script>
 </head>
 
 <body>
@@ -27,21 +18,17 @@
             <span class="portal-title-main">DataAccess Portal</span>
             <span class="portal-title-sub">Upload</span>
         </h1>
-        <!--<div class="trial-message">
-            <p>Trial period has expired. Upload functionality is currently unavailable.</p>
-        </div>-->
         <div class="two-column-layout">
             <div class="form-column">
                 <form id="dataForm">
                     <div class="form-grid">
-                        <!-- File upload box moved to the top -->
                         <div class="form-group full-width">
                             <div id="file-upload-area" class="file-upload-container">
                                 <i class="fas fa-cloud-upload-alt icon"></i>
                                 <p>Drag & drop your file here</p>
                                 <p>or</p>
                                 <label for="file_upload" class="browse-btn">Browse Files</label>
-                                <input type="file" id="file_upload" name="file_upload" accept=".pdf,.zip,.geotiff,.tiff,.png,.jpeg,.jpg,.avi">
+                                <input type="file" id="file_upload" name="file_upload" accept=".pdf,.zip,.geotiff,.tiff,.png,.jpeg,.jpg,.avi,.csv,.xlsx">
                                 <div class="file-info" style="display: none;">
                                     <p>Selected file: <span class="file-name"></span></p>
                                 </div>
@@ -62,24 +49,18 @@
                             <label for="data_type" class="required">Type of Data</label>
                             <select id="data_type" name="data_type" required>
                                 <option value="">Select a data type</option>
-                                <option value="PDF">PDF document</option>
-                                <option value="GIS">GIS/CAD</option>
-                                <option value="GeoTIFF">TIFF/GeoTIFF</option>
-                                <option value="Photo">Photo</option>
-                                <option value="GPR">Trial hole Data, Survey Data, GPR Data</option>
-                                <option value="LIDAR">LIDAR</option>
                                 <option value="BIM">BIM</option>
+                                <option value="CAD">CAD</option>
+                                <option value="CSV_Excel">CSV / Excel</option>
+                                <option value="GeoTIFF">GeoTIFF / TIFF</option>
+                                <option value="GIS">GIS</option>
+                                <option value="GPR">GPR</option>
+                                <option value="MP4">MP4 / Video</option>
+                                <option value="LIDAR">LIDAR</option>
+                                <option value="PDF">PDF</option>
+                                <option value="Photo">Photo</option>
+                                <option value="Multi">Multi Data Types</option>
                             </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="data_api">Data API</label>
-                            <input type="url" id="data_api" name="data_api">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="3rd_partydata_link">Third Party Data Link</label>
-                            <input type="url" id="3rd_partydata_link" name="3rd_partydata_link">
                         </div>
 
                         <div class="form-group">
@@ -101,22 +82,22 @@
                             <label for="data_owner_company_name" class="required">Data Owner Company Name</label>
                             <input type="text" id="data_owner_company_name" name="data_owner_company_name" required>
                         </div>
-                        
+
                         <div class="form-group">
                             <label for="data_owner_id" class="required">Data Owner ID</label>
                             <input type="text" id="data_owner_id" name="data_owner_id" required>
                         </div>
-                        
+
                         <div class="form-group">
                             <label for="data_region" class="required">Data Region</label>
                             <input type="text" id="data_region" name="data_region" required>
                         </div>
-                        
+
                         <div class="form-group">
                             <label for="number_of_files" class="required">Number of Files</label>
                             <input type="number" id="number_of_files" name="number_of_files" required>
                         </div>
-                        
+
                         <div class="form-group">
                             <label for="product_name" class="required">Product Name</label>
                             <input type="text" id="product_name" name="product_name" required>
@@ -124,14 +105,12 @@
 
                         <div class="form-group">
                             <label for="price">Price</label>
-                            <input type="text" id="data_resell_price" name="data_resell_price" placeholder="Enter price (e.g. 10.99)" 
-                                pattern="^\d*(\.\d{0,2})?$" title="Please enter a valid price with up to 2 decimal places" required>
-                        </div>                        
+                            <input type="text" id="data_resell_price" name="data_resell_price" placeholder="Enter price (e.g. 10.99)" pattern="^\d*(\.\d{0,2})?$" title="Please enter a valid price with up to 2 decimal places" required>
+                        </div>
 
                         <div class="form-group wide-field">
                             <label for="short_description" class="required">Short Description</label>
-                            <input type="text" id="short_description" name="short_description" required maxlength="200"
-                                placeholder="Enter up to 200 characters">
+                            <input type="text" id="short_description" name="short_description" required maxlength="200" placeholder="Enter up to 200 characters">
                         </div>
 
                         <div class="form-group full-width">
@@ -160,20 +139,36 @@
                 </form>
             </div>
 
-            <div class="map-column">
-                <div id="map"></div>
-                <div class="form-group">
-                    <label for="wkt_output" class="required">Area of Interest (WKT)</label>
-                    <textarea id="wkt_output" name="wkt_output" class="wkt-display" readonly required></textarea>
+        <div class="map-column">
+        <!-- Styled Preview Upload -->
+        <div class="form-group full-width">
+            <div id="preview-upload-area" class="file-upload-container">
+                <i class="fas fa-file-upload icon"></i>
+                <p>Optional: Upload a preview file</p>
+                <p>or</p>
+                <label for="preview_upload" class="browse-btn">Browse Preview</label>
+                <input type="file" id="preview_upload" name="preview_upload" accept=".pdf,.png,.jpeg,.jpg">
+                <div class="file-info preview-info" style="display: none;">
+                    <p>Preview file selected: <span class="file-name"></span></p>
                 </div>
             </div>
         </div>
+
+        <!-- Map Display -->
+        <div id="map"></div>
+        <div class="form-group">
+            <label for="wkt_output" class="required">Area of Interest (WKT)</label>
+            <textarea id="wkt_output" name="wkt_output" class="wkt-display" readonly required></textarea>
+        </div>
     </div>
 
-    <script src="script.js"></script>
-    <script src="fileUpload.js"></script>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
     <script src="map.js"></script>
-    <script src="s3Upload.js"></script>
+    <script src="uploadHandler.js"></script>
 </body>
 
 </html>

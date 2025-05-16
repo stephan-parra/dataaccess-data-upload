@@ -336,7 +336,7 @@ textarea {
 /* Add this to your existing CSS file */
 .wkt-display {
     width: 100%;
-    min-height: 60px;
+    min-height: 150px;
     padding: 10px;
     margin-top: 15px;
     background-color: #f8f9fa;
