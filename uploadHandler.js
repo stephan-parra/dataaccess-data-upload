@@ -105,7 +105,10 @@ document.addEventListener('DOMContentLoaded', () => {
         await uploadFileToS3WithProgress(uploadResult.previewPreSignedUrl, previewFile);
       }
 
-      overlayText.textContent = `Upload complete. Product ID: ${uploadResult.productId}`;
+      overlayText.innerHTML = `Upload complete. Product ID: <strong>${uploadResult.productId}</strong><br><br><button id='close-overlay-btn' class='close-overlay-btn'>Close</button>`;
+      document.getElementById('close-overlay-btn').addEventListener('click', () => {
+        overlay.style.display = 'none';
+      });
       form.reset();
       if (fileInfo) fileInfo.style.display = 'none';
     } catch (err) {
