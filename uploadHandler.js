@@ -1,5 +1,5 @@
 // uploadHandler.js
-// Enhanced with progress overlay, product ID display, and multipart upload with parallel + per-part progress bars
+// Sequential multipart upload with single progress bar and part status text
 
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('dataForm');
@@ -14,7 +14,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const overlay = document.getElementById('upload-overlay');
   const overlayProgress = document.getElementById('overlay-progress');
   const overlayText = document.getElementById('overlay-text');
-  const progressContainer = document.getElementById('multipart-progress-container');
   const messageContainer = document.createElement('div');
   messageContainer.id = 'submission-message';
   messageContainer.className = 'submission-message';
@@ -86,11 +85,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
       overlay.style.display = 'flex';
       overlayText.textContent = 'Uploading file...';
-      if (overlayProgress) {
-        overlayProgress.style.width = '0%';
-        overlayProgress.textContent = '0%';
-      }
-      if (progressContainer) progressContainer.innerHTML = '';
+      overlayProgress.style.width = '0%';
+      overlayProgress.textContent = '0%';
 
       const apiResponse = await fetch(proxyUrl + uploadApiUrl, {
         method: 'POST',
@@ -178,59 +174,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function uploadFileToS3MultiPart(partUrls, fileBlob) {
     const chunkSize = 5 * 1024 * 1024;
-    const concurrency = 4;
     const totalParts = partUrls.length;
+    let uploadedBytes = 0;
+    const totalSize = fileBlob.size;
 
-    const queue = partUrls.map((url, index) => {
+    for (let index = 0; index < totalParts; index++) {
+      const url = partUrls[index];
       const partNumber = index + 1;
       const start = index * chunkSize;
       const end = Math.min(start + chunkSize, fileBlob.size);
       const blob = fileBlob.slice(start, end);
 
-      const progressBar = document.createElement('div');
-      progressBar.className = 'multipart-part';
-      progressBar.innerHTML = `Part ${partNumber} of ${totalParts}` +
-        `<div class="multipart-progress"><div class="multipart-fill" id="part-progress-${partNumber}">0%</div></div>`;
-      progressContainer.appendChild(progressBar);
+      overlayText.textContent = `Uploading part ${partNumber} of ${totalParts}`;
 
-      return {
-        PartNumber: partNumber,
-        Url: url,
-        blob,
-        progressEl: document.getElementById(`part-progress-${partNumber}`)
-      };
-    });
-
-    const runUpload = async (part) => {
-      return new Promise((resolve, reject) => {
+      await new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
-        xhr.open('PUT', part.Url, true);
+        xhr.open('PUT', url, true);
 
         xhr.upload.onprogress = (event) => {
           if (event.lengthComputable) {
-            const percent = Math.round((event.loaded / event.total) * 100);
-            part.progressEl.style.width = `${percent}%`;
-            part.progressEl.textContent = `${percent}%`;
+            const percent = Math.round(((uploadedBytes + event.loaded) / totalSize) * 100);
+            overlayProgress.style.width = `${percent}%`;
+            overlayProgress.textContent = `${percent}%`;
           }
         };
 
         xhr.onload = () => {
-          xhr.status === 200 ? resolve() : reject(new Error('Failed part ' + part.PartNumber));
+          if (xhr.status === 200) {
+            uploadedBytes += blob.size;
+            resolve();
+          } else {
+            reject(new Error('Failed part ' + partNumber));
+          }
         };
 
-        xhr.onerror = () => reject(new Error('Failed part ' + part.PartNumber));
-        xhr.send(part.blob);
+        xhr.onerror = () => reject(new Error('Failed part ' + partNumber));
+        xhr.send(blob);
       });
-    };
-
-    const workers = Array(concurrency).fill(null).map(async () => {
-      while (queue.length) {
-        const part = queue.shift();
-        if (part) await runUpload(part);
-      }
-    });
-
-    await Promise.all(workers);
+    }
   }
 
   function showError(message) {
