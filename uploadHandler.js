@@ -1,5 +1,5 @@
 // uploadHandler.js
-// Enhanced with progress overlay and product ID display, plus multipart upload support
+// Enhanced with progress overlay, product ID display, and multipart upload with parallel + cumulative progress
 
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('dataForm');
@@ -97,8 +97,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const uploadResult = await apiResponse.json();
 
-      if (uploadResult.multipartUrls) {
-        await uploadFileToS3MultiPart(uploadResult.multipartUrls, file);
+      if (uploadResult.multiPartUploadUrls?.PartUrls) {
+        await uploadFileToS3MultiPart(uploadResult.multiPartUploadUrls.PartUrls, file);
       } else {
         await uploadFileToS3WithProgress(uploadResult.presignedUrl, file);
       }
@@ -171,33 +171,53 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  async function uploadFileToS3MultiPart(multipartUrls, fileBlob) {
+  async function uploadFileToS3MultiPart(partUrls, fileBlob) {
     const chunkSize = 5 * 1024 * 1024; // 5MB
-    for (let i = 0; i < multipartUrls.length; i++) {
-      const part = multipartUrls[i];
-      const start = (part.PartNumber - 1) * chunkSize;
-      const end = Math.min(start + chunkSize, fileBlob.size);
-      const blobPart = fileBlob.slice(start, end);
+    const concurrency = 4;
+    const totalParts = partUrls.length;
+    let uploadedBytes = 0;
+    let completed = 0;
+    const totalSize = fileBlob.size;
 
-      await new Promise((resolve, reject) => {
+    const queue = partUrls.map((url, index) => ({
+      PartNumber: index + 1,
+      Url: url,
+      blob: fileBlob.slice(index * chunkSize, Math.min((index + 1) * chunkSize, fileBlob.size))
+    }));
+
+    const runUpload = async (part) => {
+      return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
         xhr.open('PUT', part.Url, true);
 
         xhr.upload.onprogress = (event) => {
           if (event.lengthComputable) {
-            const percent = Math.round((event.loaded / event.total) * 100);
-            overlayText.textContent = `Uploading part ${part.PartNumber} of ${multipartUrls.length} (${percent}%)`;
+            uploadedBytes += event.loaded;
+            const percent = Math.round((uploadedBytes / totalSize) * 100);
+            overlayProgress.style.width = `${percent}%`;
+            overlayProgress.textContent = `${percent}%`;
+            overlayText.textContent = `Uploading part ${part.PartNumber} of ${totalParts} (${percent}%)`;
           }
         };
 
         xhr.onload = () => {
-          xhr.status === 200 ? resolve() : reject(new Error('Upload failed for part ' + part.PartNumber));
+          completed++;
+          xhr.status === 200 ? resolve() : reject(new Error('Failed part ' + part.PartNumber));
         };
 
-        xhr.onerror = () => reject(new Error('Upload failed for part ' + part.PartNumber));
-        xhr.send(blobPart);
+        xhr.onerror = () => reject(new Error('Failed part ' + part.PartNumber));
+        xhr.send(part.blob);
       });
-    }
+    };
+
+    const workers = Array(concurrency).fill(null).map(async () => {
+      while (queue.length) {
+        const part = queue.shift();
+        if (part) await runUpload(part);
+      }
+    });
+
+    await Promise.all(workers);
   }
 
   function showError(message) {
