@@ -680,3 +680,30 @@ button:disabled,
   background-color: #1976D2;
 }
 
+.multipart-part {
+  margin-bottom: 10px;
+  font-size: 14px;
+  color: #333;
+}
+
+.multipart-progress {
+  height: 20px;
+  width: 100%;
+  background-color: #e0e0e0;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.multipart-fill {
+  height: 100%;
+  width: 0%;
+  background-color: var(--success-color);
+  color: white;
+  text-align: center;
+  line-height: 20px;
+  font-weight: bold;
+  transition: width 0.2s ease-in-out;
+}
+
+

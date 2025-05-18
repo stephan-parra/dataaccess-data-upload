@@ -1,5 +1,5 @@
 // uploadHandler.js
-// Enhanced with progress overlay, product ID display, and multipart upload with parallel + cumulative progress
+// Enhanced with progress overlay, product ID display, and multipart upload with parallel + per-part progress bars
 
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('dataForm');
@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const overlay = document.getElementById('upload-overlay');
   const overlayProgress = document.getElementById('overlay-progress');
   const overlayText = document.getElementById('overlay-text');
+  const progressContainer = document.getElementById('multipart-progress-container');
   const messageContainer = document.createElement('div');
   messageContainer.id = 'submission-message';
   messageContainer.className = 'submission-message';
@@ -70,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const allowedExtensions = ['pdf', 'zip', 'geotiff', 'tiff', 'png', 'jpeg', 'jpg', 'avi', 'csv', 'xlsx'];
     const fileExtension = file.name.split('.').pop().toLowerCase();
     if (!allowedExtensions.includes(fileExtension)) {
-      showError('Unsupported file type. Please upload a PDF, ZIP, GeoTIFF, TIFF, PNG, JPEG, JPG, Excel, CSV or AVI file.');
+      showError('Unsupported file type.');
       submitBtn.disabled = false;
       resetBtn.disabled = false;
       return;
@@ -86,6 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
       overlay.style.display = 'flex';
       overlayText.textContent = 'Uploading file...';
       overlayProgress.style.width = '0%';
+      if (progressContainer) progressContainer.innerHTML = '';
 
       const apiResponse = await fetch(proxyUrl + uploadApiUrl, {
         method: 'POST',
@@ -172,18 +174,29 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function uploadFileToS3MultiPart(partUrls, fileBlob) {
-    const chunkSize = 5 * 1024 * 1024; // 5MB
+    const chunkSize = 5 * 1024 * 1024;
     const concurrency = 4;
     const totalParts = partUrls.length;
-    let uploadedBytes = 0;
-    let completed = 0;
-    const totalSize = fileBlob.size;
 
-    const queue = partUrls.map((url, index) => ({
-      PartNumber: index + 1,
-      Url: url,
-      blob: fileBlob.slice(index * chunkSize, Math.min((index + 1) * chunkSize, fileBlob.size))
-    }));
+    const queue = partUrls.map((url, index) => {
+      const partNumber = index + 1;
+      const start = index * chunkSize;
+      const end = Math.min(start + chunkSize, fileBlob.size);
+      const blob = fileBlob.slice(start, end);
+
+      const progressBar = document.createElement('div');
+      progressBar.className = 'multipart-part';
+      progressBar.innerHTML = `Part ${partNumber} of ${totalParts}` +
+        `<div class="multipart-progress"><div class="multipart-fill" id="part-progress-${partNumber}">0%</div></div>`;
+      progressContainer.appendChild(progressBar);
+
+      return {
+        PartNumber: partNumber,
+        Url: url,
+        blob,
+        progressEl: document.getElementById(`part-progress-${partNumber}`)
+      };
+    });
 
     const runUpload = async (part) => {
       return new Promise((resolve, reject) => {
@@ -192,16 +205,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         xhr.upload.onprogress = (event) => {
           if (event.lengthComputable) {
-            uploadedBytes += event.loaded;
-            const percent = Math.round((uploadedBytes / totalSize) * 100);
-            overlayProgress.style.width = `${percent}%`;
-            overlayProgress.textContent = `${percent}%`;
-            overlayText.textContent = `Uploading part ${part.PartNumber} of ${totalParts} (${percent}%)`;
+            const percent = Math.round((event.loaded / event.total) * 100);
+            part.progressEl.style.width = `${percent}%`;
+            part.progressEl.textContent = `${percent}%`;
           }
         };
 
         xhr.onload = () => {
-          completed++;
           xhr.status === 200 ? resolve() : reject(new Error('Failed part ' + part.PartNumber));
         };
 
