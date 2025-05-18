@@ -1,5 +1,5 @@
 // uploadHandler.js
-// Combined logic to support UploadAPI metadata submission and S3 file uploads
+// Combined logic to support UploadAPI metadata submission and S3 file uploads with progress bar
 
 // === DOM Ready Hook ===
 document.addEventListener('DOMContentLoaded', () => {
@@ -17,6 +17,9 @@ document.addEventListener('DOMContentLoaded', () => {
   messageContainer.className = 'submission-message';
   messageContainer.style.display = 'none';
   form.insertAdjacentElement('afterend', messageContainer);
+
+  const progressBar = document.getElementById('upload-progress');
+  const progressFill = document.getElementById('upload-progress-fill');
 
   // Set static Data Owner ID
   if (dataOwnerIdField && !dataOwnerIdField.value) {
@@ -74,29 +77,32 @@ document.addEventListener('DOMContentLoaded', () => {
       console.log("Payload to Upload API:", payload);
 
       const apiResponse = await fetch(proxyUrl + uploadApiUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
 
       if (!apiResponse.ok) throw new Error(`UploadAPI error: ${apiResponse.statusText}`);
 
       const uploadResult = await apiResponse.json();
 
-      await uploadFileToS3(uploadResult.presignedUrl, file);
+      await uploadFileToS3WithProgress(uploadResult.presignedUrl, file);
 
       const previewFile = previewInput?.files[0];
       if (previewFile && uploadResult.previewPreSignedUrl) {
-        await uploadFileToS3(uploadResult.previewPreSignedUrl, previewFile);
+        await uploadFileToS3WithProgress(uploadResult.previewPreSignedUrl, previewFile);
       }
 
       showSuccess(`Upload successful. Product ID: ${uploadResult.productId}`);
       form.reset();
       if (fileInfo) fileInfo.style.display = 'none';
+      progressBar.style.display = 'none';
+      progressFill.style.width = '0%';
     } catch (err) {
       console.error(err);
       showError(err.message);
+      progressBar.style.display = 'none';
+      progressFill.style.width = '0%';
     }
   });
 
@@ -126,12 +132,31 @@ document.addEventListener('DOMContentLoaded', () => {
     return payload;
   }
 
-  async function uploadFileToS3(url, fileBlob) {
-    const result = await fetch(url, {
-      method: 'PUT',
-      body: fileBlob
+  async function uploadFileToS3WithProgress(url, fileBlob) {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('PUT', url, true);
+
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable) {
+          const percentComplete = Math.round((event.loaded / event.total) * 100);
+          progressBar.style.display = 'block';
+          progressFill.style.width = `${percentComplete}%`;
+          progressFill.textContent = `${percentComplete}%`;
+        }
+      };
+
+      xhr.onload = () => {
+        if (xhr.status === 200) {
+          resolve();
+        } else {
+          reject(new Error('S3 upload failed with status ' + xhr.status));
+        }
+      };
+
+      xhr.onerror = () => reject(new Error('S3 upload failed'));
+      xhr.send(fileBlob);
     });
-    if (!result.ok) throw new Error('S3 upload failed');
   }
 
   function showError(message) {

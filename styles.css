@@ -590,3 +590,23 @@ textarea {
     display: block;
 }
 
+.progress-bar {
+  width: 100%;
+  background-color: #e0e0e0;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 15px;
+  height: 24px;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background-color: #4CAF50;
+  color: white;
+  text-align: center;
+  line-height: 24px;
+  font-weight: bold;
+  transition: width 0.2s ease-in-out;
+}
+
