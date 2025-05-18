@@ -1,5 +1,5 @@
 // uploadHandler.js
-// Combined logic to support UploadAPI metadata submission and S3 file uploads with progress bar
+// Enhanced with progress overlay and product ID display
 
 // === DOM Ready Hook ===
 document.addEventListener('DOMContentLoaded', () => {
@@ -12,23 +12,22 @@ document.addEventListener('DOMContentLoaded', () => {
   const fileFormatField = document.getElementById('file_format');
   const fileSizeField = document.getElementById('file_size');
   const dataOwnerIdField = document.getElementById('data_owner_id');
+  const overlay = document.getElementById('upload-overlay');
+  const overlayProgress = document.getElementById('overlay-progress');
+  const overlayText = document.getElementById('overlay-text');
   const messageContainer = document.createElement('div');
   messageContainer.id = 'submission-message';
   messageContainer.className = 'submission-message';
   messageContainer.style.display = 'none';
   form.insertAdjacentElement('afterend', messageContainer);
 
-  const progressBar = document.getElementById('upload-progress');
-  const progressFill = document.getElementById('upload-progress-fill');
   const submitBtn = form.querySelector('.submit-btn');
   const resetBtn = form.querySelector('.reset-btn');
 
-  // Set static Data Owner ID
   if (dataOwnerIdField && !dataOwnerIdField.value) {
     dataOwnerIdField.value = 'f2e4f1e1-8f18-4df0-891c-153b857e22b9';
   }
 
-  // Auto-fill file details when a file is selected
   fileInput.addEventListener('change', () => {
     const file = fileInput.files[0];
     if (file) {
@@ -36,7 +35,6 @@ document.addEventListener('DOMContentLoaded', () => {
       fileNameField.value = file.name;
       fileFormatField.value = extension.toUpperCase();
       fileSizeField.value = file.size;
-
       if (fileInfo && fileNameDisplay) {
         fileNameDisplay.textContent = file.name;
         fileInfo.style.display = 'block';
@@ -86,7 +84,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
       const uploadApiUrl = 'https://h3dgyj60ml.execute-api.ap-southeast-2.amazonaws.com/dev/upload';
 
-      console.log("Payload to Upload API:", payload);
+      overlay.style.display = 'flex';
+      overlayText.textContent = 'Uploading file...';
+      overlayProgress.style.width = '0%';
 
       const apiResponse = await fetch(proxyUrl + uploadApiUrl, {
         method: 'POST',
@@ -105,16 +105,13 @@ document.addEventListener('DOMContentLoaded', () => {
         await uploadFileToS3WithProgress(uploadResult.previewPreSignedUrl, previewFile);
       }
 
-      showSuccess(`Upload successful. Product ID: ${uploadResult.productId}`);
+      overlayText.textContent = `Upload complete. Product ID: ${uploadResult.productId}`;
       form.reset();
       if (fileInfo) fileInfo.style.display = 'none';
-      progressBar.style.display = 'none';
-      progressFill.style.width = '0%';
     } catch (err) {
       console.error(err);
       showError(err.message);
-      progressBar.style.display = 'none';
-      progressFill.style.width = '0%';
+      overlay.style.display = 'none';
     } finally {
       submitBtn.disabled = false;
       resetBtn.disabled = false;
@@ -155,9 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
       xhr.upload.onprogress = (event) => {
         if (event.lengthComputable) {
           const percentComplete = Math.round((event.loaded / event.total) * 100);
-          progressBar.style.display = 'block';
-          progressFill.style.width = `${percentComplete}%`;
-          progressFill.textContent = `${percentComplete}%`;
+          overlayProgress.style.width = `${percentComplete}%`;
         }
       };
 
