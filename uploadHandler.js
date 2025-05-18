@@ -33,12 +33,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   pauseBtn.addEventListener('click', () => {
     pauseUpload = true;
-    overlayText.textContent = 'Upload paused.';
+    overlayText.textContent += ' (Paused)';
+    pauseBtn.disabled = true;
+    resumeBtn.disabled = false;
   });
 
   resumeBtn.addEventListener('click', () => {
     pauseUpload = false;
-    overlayText.textContent = 'Resuming upload...';
+    overlayText.textContent = overlayText.textContent.replace(' (Paused)', '');
+    pauseBtn.disabled = false;
+    resumeBtn.disabled = true;
   });
 
   const submitBtn = form.querySelector('.submit-btn');
@@ -164,22 +168,21 @@ document.addEventListener('DOMContentLoaded', () => {
       const end = Math.min(start + chunkSize, fileBlob.size);
       const blob = fileBlob.slice(start, end);
 
-      overlayText.textContent = `Uploading part ${partNumber} of ${totalParts}`;
+      const uploadedMB = (uploadedBytes / (1024 * 1024)).toFixed(2);
+      const totalMB = (totalSize / (1024 * 1024)).toFixed(2);
+      overlayText.textContent = `Uploading part ${partNumber} of ${totalParts} — ${uploadedMB} MB of ${totalMB} MB`;
 
       await new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
         xhr.open('PUT', url, true);
 
-        xhr.upload.onprogress = (event) => {
-          if (event.lengthComputable) {
-            const percent = Math.round(((uploadedBytes + event.loaded) / totalSize) * 100);
-            overlayProgress.style.width = `${percent}%`;
-            overlayProgress.textContent = `${percent}%`;
-          }
-        };
-
+        
         xhr.onload = () => {
-          if (xhr.status === 200) {
+      if (xhr.status === 200) {
+        uploadedBytes += blob.size;
+        const percent = Math.round((uploadedBytes / totalSize) * 100);
+        overlayProgress.style.width = `${percent}%`;
+        overlayProgress.textContent = `${percent}%`;
             uploadedBytes += blob.size;
             resolve();
           } else {
