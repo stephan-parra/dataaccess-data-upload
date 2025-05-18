@@ -86,7 +86,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
       overlay.style.display = 'flex';
       overlayText.textContent = 'Uploading file...';
-      overlayProgress.style.width = '0%';
+      if (overlayProgress) {
+        overlayProgress.style.width = '0%';
+        overlayProgress.textContent = '0%';
+      }
       if (progressContainer) progressContainer.innerHTML = '';
 
       const apiResponse = await fetch(proxyUrl + uploadApiUrl, {
