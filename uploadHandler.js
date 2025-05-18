@@ -1,5 +1,5 @@
 // uploadHandler.js
-// Sequential multipart upload with single progress bar and part status text
+// Enhanced with pause/resume and cancel support for multipart uploads
 
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('dataForm');
@@ -14,11 +14,32 @@ document.addEventListener('DOMContentLoaded', () => {
   const overlay = document.getElementById('upload-overlay');
   const overlayProgress = document.getElementById('overlay-progress');
   const overlayText = document.getElementById('overlay-text');
+  const cancelBtn = document.getElementById('cancel-upload-btn');
+  const pauseBtn = document.getElementById('pause-upload-btn');
+  const resumeBtn = document.getElementById('resume-upload-btn');
   const messageContainer = document.createElement('div');
   messageContainer.id = 'submission-message';
   messageContainer.className = 'submission-message';
   messageContainer.style.display = 'none';
   form.insertAdjacentElement('afterend', messageContainer);
+
+  let abortUpload = false;
+  let pauseUpload = false;
+
+  cancelBtn.addEventListener('click', () => {
+    abortUpload = true;
+    overlayText.textContent = 'Upload cancelled.';
+  });
+
+  pauseBtn.addEventListener('click', () => {
+    pauseUpload = true;
+    overlayText.textContent = 'Upload paused.';
+  });
+
+  resumeBtn.addEventListener('click', () => {
+    pauseUpload = false;
+    overlayText.textContent = 'Resuming upload...';
+  });
 
   const submitBtn = form.querySelector('.submit-btn');
   const resetBtn = form.querySelector('.reset-btn');
@@ -55,6 +76,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
+    abortUpload = false;
+    pauseUpload = false;
     messageContainer.textContent = '';
     submitBtn.disabled = true;
     resetBtn.disabled = true;
@@ -125,53 +148,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  function buildUploadPayload(formData, file) {
-    const tags = formData.get('tags')?.split(',').map(t => t.trim()) || [];
-    const dataGeoShape = document.getElementById('wkt_output')?.value || '';
-    const previewFile = previewInput?.files[0];
-    return {
-      DataOwnerId: formData.get('data_owner_id'),
-      DataOwnerName: formData.get('data_owner_company_name'),
-      FileName: file.name,
-      PreviewFile: previewFile ? previewFile.name : '',
-      FileSize: file.size,
-      IsMultiPartUpload: file.size > 100 * 1024 * 1024,
-      ProductName: formData.get('product_name'),
-      ShortDescription: formData.get('short_description'),
-      LongDescription: formData.get('long_description'),
-      DateDataCaptured: new Date(formData.get('data_captured_date')).toISOString(),
-      DateDataExpired: new Date(formData.get('data_expire_date')).toISOString(),
-      DateDataUploaded: new Date().toISOString(),
-      DataRegion: formData.get('data_region'),
-      DataFormatType: formData.get('data_type'),
-      Tags: tags,
-      DataResellPrice: parseFloat(formData.get('data_resell_price') || 0),
-      DataGeoShape: dataGeoShape
-    };
-  }
-
-  async function uploadFileToS3WithProgress(url, fileBlob) {
-    return new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-      xhr.open('PUT', url, true);
-
-      xhr.upload.onprogress = (event) => {
-        if (event.lengthComputable) {
-          const percentComplete = Math.round((event.loaded / event.total) * 100);
-          overlayProgress.style.width = `${percentComplete}%`;
-          overlayProgress.textContent = `${percentComplete}%`;
-        }
-      };
-
-      xhr.onload = () => {
-        xhr.status === 200 ? resolve() : reject(new Error('S3 upload failed with status ' + xhr.status));
-      };
-
-      xhr.onerror = () => reject(new Error('S3 upload failed'));
-      xhr.send(fileBlob);
-    });
-  }
-
   async function uploadFileToS3MultiPart(partUrls, fileBlob) {
     const chunkSize = 5 * 1024 * 1024;
     const totalParts = partUrls.length;
@@ -179,6 +155,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const totalSize = fileBlob.size;
 
     for (let index = 0; index < totalParts; index++) {
+      if (abortUpload) throw new Error('Upload cancelled by user.');
+      while (pauseUpload) await new Promise(resolve => setTimeout(resolve, 500));
+
       const url = partUrls[index];
       const partNumber = index + 1;
       const start = index * chunkSize;
@@ -212,6 +191,53 @@ document.addEventListener('DOMContentLoaded', () => {
         xhr.send(blob);
       });
     }
+  }
+
+  function buildUploadPayload(formData, file) {
+    const tags = formData.get('tags')?.split(',').map(t => t.trim()) || [];
+    const dataGeoShape = document.getElementById('wkt_output')?.value || '';
+    const previewFile = previewInput?.files[0];
+    return {
+      DataOwnerId: formData.get('data_owner_id'),
+      DataOwnerName: formData.get('data_owner_company_name'),
+      FileName: file.name,
+      PreviewFile: previewFile ? previewFile.name : '',
+      FileSize: file.size,
+      IsMultiPartUpload: file.size > 100 * 1024 * 1024,
+      ProductName: formData.get('product_name'),
+      ShortDescription: formData.get('short_description'),
+      LongDescription: formData.get('long_description'),
+      DateDataCaptured: new Date(formData.get('data_captured_date')).toISOString(),
+      DateDataExpired: new Date(formData.get('data_expire_date')).toISOString(),
+      DateDataUploaded: new Date().toISOString(),
+      DataRegion: formData.get('data_region'),
+      DataFormatType: formData.get('data_type'),
+      Tags: tags,
+      DataResellPrice: parseFloat(formData.get('data_resell_price') || 0),
+      DataGeoShape: dataGeoShape
+    };
+  }
+
+  function uploadFileToS3WithProgress(url, fileBlob) {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('PUT', url, true);
+
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable) {
+          const percentComplete = Math.round((event.loaded / event.total) * 100);
+          overlayProgress.style.width = `${percentComplete}%`;
+          overlayProgress.textContent = `${percentComplete}%`;
+        }
+      };
+
+      xhr.onload = () => {
+        xhr.status === 200 ? resolve() : reject(new Error('S3 upload failed with status ' + xhr.status));
+      };
+
+      xhr.onerror = () => reject(new Error('S3 upload failed'));
+      xhr.send(fileBlob);
+    });
   }
 
   function showError(message) {
