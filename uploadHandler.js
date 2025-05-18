@@ -194,6 +194,11 @@ document.addEventListener('DOMContentLoaded', () => {
         xhr.send(blob);
       });
     }
+    // Ensure final progress shows 100%
+    overlayProgress.style.width = `100%`;
+    overlayProgress.textContent = `100%`;
+    overlayText.textContent = `Upload complete. Finalizing...`;
+
   }
 
   function buildUploadPayload(formData, file) {
