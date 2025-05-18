@@ -153,6 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (event.lengthComputable) {
           const percentComplete = Math.round((event.loaded / event.total) * 100);
           overlayProgress.style.width = `${percentComplete}%`;
+          overlayProgress.textContent = `${percentComplete}%`;
         }
       };
 

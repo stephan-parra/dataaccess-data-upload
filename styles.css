@@ -635,10 +635,11 @@ button:disabled,
 
 .overlay-content {
   background: #fff;
-  padding: 2rem;
+  padding: 1rem;
   border-radius: 10px;
   text-align: center;
-  width: 400px;
+  width: 600px;         /* wider */
+  height: auto;         /* auto height */
   max-width: 90%;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
 }
