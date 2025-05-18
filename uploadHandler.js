@@ -1,7 +1,6 @@
 // uploadHandler.js
-// Enhanced with progress overlay and product ID display
+// Enhanced with progress overlay and product ID display, plus multipart upload support
 
-// === DOM Ready Hook ===
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('dataForm');
   const fileInput = document.getElementById('file_upload');
@@ -98,7 +97,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const uploadResult = await apiResponse.json();
 
-      await uploadFileToS3WithProgress(uploadResult.presignedUrl, file);
+      if (uploadResult.multipartUrls) {
+        await uploadFileToS3MultiPart(uploadResult.multipartUrls, file);
+      } else {
+        await uploadFileToS3WithProgress(uploadResult.presignedUrl, file);
+      }
 
       const previewFile = previewInput?.files[0];
       if (previewFile && uploadResult.previewPreSignedUrl) {
@@ -125,13 +128,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const tags = formData.get('tags')?.split(',').map(t => t.trim()) || [];
     const dataGeoShape = document.getElementById('wkt_output')?.value || '';
     const previewFile = previewInput?.files[0];
-    const payload = {
+    return {
       DataOwnerId: formData.get('data_owner_id'),
       DataOwnerName: formData.get('data_owner_company_name'),
       FileName: file.name,
       PreviewFile: previewFile ? previewFile.name : '',
       FileSize: file.size,
-      IsMultiPartUpload: false,
+      IsMultiPartUpload: file.size > 100 * 1024 * 1024,
       ProductName: formData.get('product_name'),
       ShortDescription: formData.get('short_description'),
       LongDescription: formData.get('long_description'),
@@ -144,7 +147,6 @@ document.addEventListener('DOMContentLoaded', () => {
       DataResellPrice: parseFloat(formData.get('data_resell_price') || 0),
       DataGeoShape: dataGeoShape
     };
-    return payload;
   }
 
   async function uploadFileToS3WithProgress(url, fileBlob) {
@@ -161,16 +163,41 @@ document.addEventListener('DOMContentLoaded', () => {
       };
 
       xhr.onload = () => {
-        if (xhr.status === 200) {
-          resolve();
-        } else {
-          reject(new Error('S3 upload failed with status ' + xhr.status));
-        }
+        xhr.status === 200 ? resolve() : reject(new Error('S3 upload failed with status ' + xhr.status));
       };
 
       xhr.onerror = () => reject(new Error('S3 upload failed'));
       xhr.send(fileBlob);
     });
+  }
+
+  async function uploadFileToS3MultiPart(multipartUrls, fileBlob) {
+    const chunkSize = 5 * 1024 * 1024; // 5MB
+    for (let i = 0; i < multipartUrls.length; i++) {
+      const part = multipartUrls[i];
+      const start = (part.PartNumber - 1) * chunkSize;
+      const end = Math.min(start + chunkSize, fileBlob.size);
+      const blobPart = fileBlob.slice(start, end);
+
+      await new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('PUT', part.Url, true);
+
+        xhr.upload.onprogress = (event) => {
+          if (event.lengthComputable) {
+            const percent = Math.round((event.loaded / event.total) * 100);
+            overlayText.textContent = `Uploading part ${part.PartNumber} of ${multipartUrls.length} (${percent}%)`;
+          }
+        };
+
+        xhr.onload = () => {
+          xhr.status === 200 ? resolve() : reject(new Error('Upload failed for part ' + part.PartNumber));
+        };
+
+        xhr.onerror = () => reject(new Error('Upload failed for part ' + part.PartNumber));
+        xhr.send(blobPart);
+      });
+    }
   }
 
   function showError(message) {
