@@ -20,6 +20,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const progressBar = document.getElementById('upload-progress');
   const progressFill = document.getElementById('upload-progress-fill');
+  const submitBtn = form.querySelector('.submit-btn');
+  const resetBtn = form.querySelector('.reset-btn');
 
   // Set static Data Owner ID
   if (dataOwnerIdField && !dataOwnerIdField.value) {
@@ -57,14 +59,24 @@ document.addEventListener('DOMContentLoaded', () => {
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     messageContainer.textContent = '';
+    submitBtn.disabled = true;
+    resetBtn.disabled = true;
 
     const file = fileInput.files[0];
-    if (!file) return showError('No file selected.');
+    if (!file) {
+      showError('No file selected.');
+      submitBtn.disabled = false;
+      resetBtn.disabled = false;
+      return;
+    }
 
     const allowedExtensions = ['pdf', 'zip', 'geotiff', 'tiff', 'png', 'jpeg', 'jpg', 'avi', 'csv', 'xlsx'];
     const fileExtension = file.name.split('.').pop().toLowerCase();
     if (!allowedExtensions.includes(fileExtension)) {
-      return showError('Unsupported file type. Please upload a PDF, ZIP, GeoTIFF, TIFF, PNG, JPEG, JPG, Excel, CSV or AVI file.');
+      showError('Unsupported file type. Please upload a PDF, ZIP, GeoTIFF, TIFF, PNG, JPEG, JPG, Excel, CSV or AVI file.');
+      submitBtn.disabled = false;
+      resetBtn.disabled = false;
+      return;
     }
 
     const formData = new FormData(form);
@@ -103,6 +115,9 @@ document.addEventListener('DOMContentLoaded', () => {
       showError(err.message);
       progressBar.style.display = 'none';
       progressFill.style.width = '0%';
+    } finally {
+      submitBtn.disabled = false;
+      resetBtn.disabled = false;
     }
   });
 
