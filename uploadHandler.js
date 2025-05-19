@@ -157,6 +157,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
 
       // ✅ Only now show overlay
+      completionDetails.innerHTML = ''; // Clear any old completion message
       overlay.style.display = 'flex';
       cancelBtn.style.display = 'inline-block';
       overlayText.textContent = 'Uploading file...';
