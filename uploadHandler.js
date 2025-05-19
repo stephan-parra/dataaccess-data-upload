@@ -157,7 +157,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
 
       // ✅ Only now show overlay
-      completionDetails.innerHTML = ''; // Clear any old completion message
+      const completionDetails = document.getElementById('upload-complete-details');
+      if (completionDetails) {
+        completionDetails.innerHTML = '';
+      }
+
       overlay.style.display = 'flex';
       cancelBtn.style.display = 'inline-block';
       overlayText.textContent = 'Uploading file...';
