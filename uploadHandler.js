@@ -96,6 +96,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       } else {
         fileSizeWarning.style.display = 'none';
         fileSizeWarning.textContent = '';
+        submitBtn.disabled = false;
       }
     } else {
     // If no file is selected, disable the submit button
@@ -127,6 +128,14 @@ document.addEventListener('DOMContentLoaded', async () => {
       showError('No file selected.');
       submitBtn.disabled = false;
       resetBtn.disabled = false;
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024 * 1024) {
+      showError('Selected file is larger than 5GB. Please choose a smaller file.');
+      submitBtn.disabled = false;
+      resetBtn.disabled = false;
+      overlay.style.display = 'none';
       return;
     }
 
