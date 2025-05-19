@@ -139,6 +139,23 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
 
+      // ✅ VALIDATE FIELDS HERE
+      const missingFields = validateFormFields(form);
+      if (missingFields.length > 0) {
+        showError('Please complete all required fields before uploading.');
+        submitBtn.disabled = false;
+        resetBtn.disabled = false;
+        return;
+      }
+
+      // ✅ Only now show overlay
+      overlay.style.display = 'flex';
+      cancelBtn.style.display = 'inline-block';
+      overlayText.textContent = 'Uploading file...';
+      overlayProgress.style.transition = 'width 0.5s ease';
+      overlayProgress.style.width = '0%';
+      overlayProgress.textContent = '0%';
+
     const allowedExtensions = ['pdf', 'zip', 'geotiff', 'tiff', 'png', 'jpeg', 'jpg', 'avi', 'csv', 'xlsx'];
     const fileExtension = file.name.split('.').pop().toLowerCase();
     if (!allowedExtensions.includes(fileExtension)) {
@@ -323,6 +340,45 @@ document.addEventListener('DOMContentLoaded', async () => {
       DataGeoShape: dataGeoShape
     };
   }
+
+  function validateFormFields(form) {
+    const requiredFields = [
+      'file_name',
+      'file_format',
+      'data_type',
+      'data_captured_date',
+      'data_owner_company_name',
+      'data_owner_id',
+      'data_region',
+      'number_of_files',
+      'product_name',
+      'data_resell_price',
+      'short_description',
+      'wkt_output'
+    ];
+
+    const missing = [];
+
+    requiredFields.forEach(id => {
+      const field = document.getElementById(id);
+      if (!field || !field.value || field.value.trim() === '') {
+        missing.push(id);
+        if (field) {
+          field.classList.add('error-border');
+        }
+      } else {
+        field.classList.remove('error-border');
+      }
+    });
+
+    if (missing.length > 0) {
+      const first = document.getElementById(missing[0]);
+      if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    return missing;
+  }
+
 
   function showError(message) {
     messageContainer.textContent = message;
