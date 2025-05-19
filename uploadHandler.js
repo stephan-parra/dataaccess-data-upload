@@ -1,5 +1,5 @@
 // uploadHandler.js
-// Enhanced with pause/resume and cancel support for multipart uploads
+// Multipart upload with cancel support, smooth progress, ETag collection, and S3 finalization
 
 let UPLOAD_API_URL = '';
 
@@ -11,6 +11,7 @@ async function loadConfig() {
 
 document.addEventListener('DOMContentLoaded', async () => {
   await loadConfig();
+
   const form = document.getElementById('dataForm');
   const fileInput = document.getElementById('file_upload');
   const fileInfo = document.querySelector('#file-upload-area .file-info');
@@ -24,8 +25,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   const overlayProgress = document.getElementById('overlay-progress');
   const overlayText = document.getElementById('overlay-text');
   const cancelBtn = document.getElementById('cancel-upload-btn');
-  const pauseBtn = document.getElementById('pause-upload-btn');
-  const resumeBtn = document.getElementById('resume-upload-btn');
   const messageContainer = document.createElement('div');
   messageContainer.id = 'submission-message';
   messageContainer.className = 'submission-message';
@@ -33,25 +32,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   form.insertAdjacentElement('afterend', messageContainer);
 
   let abortUpload = false;
-  let pauseUpload = false;
 
   cancelBtn.addEventListener('click', () => {
     abortUpload = true;
     overlayText.textContent = 'Upload cancelled.';
-  });
-
-  pauseBtn.addEventListener('click', () => {
-    pauseUpload = true;
-    overlayText.textContent += ' (Paused)';
-    pauseBtn.disabled = true;
-    resumeBtn.disabled = false;
-  });
-
-  resumeBtn.addEventListener('click', () => {
-    pauseUpload = false;
-    overlayText.textContent = overlayText.textContent.replace(' (Paused)', '');
-    pauseBtn.disabled = false;
-    resumeBtn.disabled = true;
   });
 
   const submitBtn = form.querySelector('.submit-btn');
@@ -90,7 +74,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     abortUpload = false;
-    pauseUpload = false;
     messageContainer.textContent = '';
     submitBtn.disabled = true;
     resetBtn.disabled = true;
@@ -116,14 +99,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     const payload = buildUploadPayload(formData, file);
 
     try {
-      const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
-      
       overlay.style.display = 'flex';
       overlayText.textContent = 'Uploading file...';
+      overlayProgress.style.transition = 'width 0.5s ease';
       overlayProgress.style.width = '0%';
       overlayProgress.textContent = '0%';
 
-      const apiResponse = await fetch(proxyUrl + UPLOAD_API_URL, {
+      const apiResponse = await fetch(UPLOAD_API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -134,7 +116,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       const uploadResult = await apiResponse.json();
 
       if (uploadResult.multiPartUploadUrls?.PartUrls) {
-        await uploadFileToS3MultiPart(uploadResult.multiPartUploadUrls.PartUrls, file);
+        await uploadFileToS3MultiPart(
+          uploadResult.multiPartUploadUrls.PartUrls,
+          file,
+          uploadResult.multiPartUploadUrls.UploadId
+        );
       } else {
         await uploadFileToS3WithProgress(uploadResult.presignedUrl, file);
       }
@@ -160,16 +146,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  async function uploadFileToS3MultiPart(partUrls, fileBlob) {
+  async function uploadFileToS3MultiPart(partUrls, fileBlob, uploadId) {
     const chunkSize = 5 * 1024 * 1024;
     const totalParts = partUrls.length;
     let uploadedBytes = 0;
     const totalSize = fileBlob.size;
-
     const completedParts = [];
+
     for (let index = 0; index < totalParts; index++) {
       if (abortUpload) throw new Error('Upload cancelled by user.');
-      while (pauseUpload) await new Promise(resolve => setTimeout(resolve, 500));
 
       const url = partUrls[index];
       const partNumber = index + 1;
@@ -185,16 +170,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         const xhr = new XMLHttpRequest();
         xhr.open('PUT', url, true);
 
-        
         xhr.onload = () => {
-      if (xhr.status === 200) {
-        uploadedBytes += blob.size;
-        const etag = xhr.getResponseHeader('ETag');
-        completedParts.push({ PartNumber: partNumber, ETag: etag });
-        const percent = Math.round((uploadedBytes / totalSize) * 100);
-        overlayProgress.style.width = `${percent}%`;
-        overlayProgress.textContent = `${percent}%`;
+          if (xhr.status === 200) {
             uploadedBytes += blob.size;
+            const etag = xhr.getResponseHeader('ETag');
+            completedParts.push({ PartNumber: partNumber, ETag: etag });
+            const percent = Math.round((uploadedBytes / totalSize) * 100);
+            overlayProgress.style.width = `${percent}%`;
+            overlayProgress.textContent = `${percent}%`;
             resolve();
           } else {
             reject(new Error('Failed part ' + partNumber));
@@ -205,6 +188,48 @@ document.addEventListener('DOMContentLoaded', async () => {
         xhr.send(blob);
       });
     }
+
+    // ✅ Finalize multipart upload
+    const key = partUrls[0].split('?')[0].split('.com/')[1];
+    const completeResponse = await fetch(UPLOAD_API_URL + '/completemultipartupload', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        UploadId: uploadId,
+        Key: key,
+        Parts: completedParts
+      })
+    });
+
+    if (!completeResponse.ok) {
+      throw new Error('Failed to complete multipart upload');
+    }
+
+    overlayProgress.style.width = '100%';
+    overlayProgress.textContent = '100%';
+    overlayText.textContent = 'Upload complete. Finalizing...';
+  }
+
+  function uploadFileToS3WithProgress(url, fileBlob) {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('PUT', url, true);
+
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable) {
+          const percentComplete = Math.round((event.loaded / event.total) * 100);
+          overlayProgress.style.width = `${percentComplete}%`;
+          overlayProgress.textContent = `${percentComplete}%`;
+        }
+      };
+
+      xhr.onload = () => {
+        xhr.status === 200 ? resolve() : reject(new Error('S3 upload failed with status ' + xhr.status));
+      };
+
+      xhr.onerror = () => reject(new Error('S3 upload failed'));
+      xhr.send(fileBlob);
+    });
   }
 
   function buildUploadPayload(formData, file) {
@@ -230,28 +255,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       DataResellPrice: parseFloat(formData.get('data_resell_price') || 0),
       DataGeoShape: dataGeoShape
     };
-  }
-
-  function uploadFileToS3WithProgress(url, fileBlob) {
-    return new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-      xhr.open('PUT', url, true);
-
-      xhr.upload.onprogress = (event) => {
-        if (event.lengthComputable) {
-          const percentComplete = Math.round((event.loaded / event.total) * 100);
-          overlayProgress.style.width = `${percentComplete}%`;
-          overlayProgress.textContent = `${percentComplete}%`;
-        }
-      };
-
-      xhr.onload = () => {
-        xhr.status === 200 ? resolve() : reject(new Error('S3 upload failed with status ' + xhr.status));
-      };
-
-      xhr.onerror = () => reject(new Error('S3 upload failed'));
-      xhr.send(fileBlob);
-    });
   }
 
   function showError(message) {
