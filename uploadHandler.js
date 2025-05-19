@@ -92,7 +92,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (file.size > FIVE_GB) {
         fileSizeWarning.textContent = 'Warning: File size exceeds 5GB. Uploads over 5GB may fail.';
         fileSizeWarning.style.display = 'block';
-        submitBtn.disabled = false;
+        submitBtn.disabled = true;
       } else {
         fileSizeWarning.style.display = 'none';
         fileSizeWarning.textContent = '';
