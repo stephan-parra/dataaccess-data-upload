@@ -26,6 +26,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   const overlayText = document.getElementById('overlay-text');
   const cancelBtn = document.getElementById('cancel-upload-btn');
 
+  // Restrict Captured Date to today or earlier
+  const capturedDateInput = document.getElementById('data_captured_date');
+  if (capturedDateInput) {
+    const today = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
+    capturedDateInput.setAttribute('max', today);
+    console.log('Captured Date max set to:', today);
+  }
+
   const messageContainer = document.createElement('div');
   messageContainer.id = 'submission-message';
   messageContainer.className = 'submission-message';
