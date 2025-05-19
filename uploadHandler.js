@@ -72,6 +72,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       fileInfo.style.display = 'none';
     }
 
+    if (completionDetails) completionDetails.innerHTML = '';
+
     submitBtn.disabled = true;
   });
 
@@ -138,6 +140,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       resetBtn.disabled = false;
       return;
     }
+
+    if (completionDetails) completionDetails.innerHTML = '';
 
     if (file.size > 5 * 1024 * 1024 * 1024) {
       showError('Selected file is larger than 5GB. Please choose a smaller file.');
@@ -231,6 +235,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
       form.reset();
       if (fileInfo) fileInfo.style.display = 'none';
+      if (completionDetails) completionDetails.innerHTML = '';
+      cancelBtn.style.display = 'none';
     } catch (err) {
       if (abortUpload) {
         showError('Upload was cancelled.');
