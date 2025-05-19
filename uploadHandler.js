@@ -1,7 +1,16 @@
 // uploadHandler.js
 // Enhanced with pause/resume and cancel support for multipart uploads
 
-document.addEventListener('DOMContentLoaded', () => {
+let UPLOAD_API_URL = '';
+
+async function loadConfig() {
+  const response = await fetch('config.json');
+  const config = await response.json();
+  UPLOAD_API_URL = config.UPLOAD_API_URL;
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+  await loadConfig();
   const form = document.getElementById('dataForm');
   const fileInput = document.getElementById('file_upload');
   const fileInfo = document.querySelector('#file-upload-area .file-info');
@@ -108,14 +117,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     try {
       const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
-      const uploadApiUrl = 'https://h3dgyj60ml.execute-api.ap-southeast-2.amazonaws.com/dev/upload';
-
+      
       overlay.style.display = 'flex';
       overlayText.textContent = 'Uploading file...';
       overlayProgress.style.width = '0%';
       overlayProgress.textContent = '0%';
 
-      const apiResponse = await fetch(proxyUrl + uploadApiUrl, {
+      const apiResponse = await fetch(proxyUrl + UPLOAD_API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -158,6 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let uploadedBytes = 0;
     const totalSize = fileBlob.size;
 
+    const completedParts = [];
     for (let index = 0; index < totalParts; index++) {
       if (abortUpload) throw new Error('Upload cancelled by user.');
       while (pauseUpload) await new Promise(resolve => setTimeout(resolve, 500));
@@ -180,6 +189,8 @@ document.addEventListener('DOMContentLoaded', () => {
         xhr.onload = () => {
       if (xhr.status === 200) {
         uploadedBytes += blob.size;
+        const etag = xhr.getResponseHeader('ETag');
+        completedParts.push({ PartNumber: partNumber, ETag: etag });
         const percent = Math.round((uploadedBytes / totalSize) * 100);
         overlayProgress.style.width = `${percent}%`;
         overlayProgress.textContent = `${percent}%`;
@@ -194,11 +205,6 @@ document.addEventListener('DOMContentLoaded', () => {
         xhr.send(blob);
       });
     }
-    // Ensure final progress shows 100%
-    overlayProgress.style.width = `100%`;
-    overlayProgress.textContent = `100%`;
-    overlayText.textContent = `Upload complete. Finalizing...`;
-
   }
 
   function buildUploadPayload(formData, file) {
