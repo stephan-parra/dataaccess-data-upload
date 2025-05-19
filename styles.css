@@ -739,6 +739,16 @@ input, select, textarea {
   transition: border 0.2s ease, background-color 0.2s ease;
 }
 
+#upload-complete-details h3 {
+  color: #4CAF50;
+  margin-bottom: 10px;
+}
+
+#upload-complete-details p {
+  margin: 4px 0;
+  font-size: 15px;
+  color: #333;
+}
 
 
 

@@ -209,7 +209,23 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
 
       cancelBtn.style.display = 'none';
-      overlayText.innerHTML = `Upload complete. Product ID: <strong>${uploadResult.productId}</strong><br><br><button id='close-overlay-btn' class='close-overlay-btn'>Close</button>`;
+
+      // overlayText.innerHTML = `Upload complete. Product ID: <strong>${uploadResult.productId}</strong><br><br><button id='close-overlay-btn' class='close-overlay-btn'>Close</button>`;
+      const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+
+      const detailsHTML = `
+        <h3 style="margin-top: 1rem;">✅ Upload Complete</h3>
+        <p><strong>Product ID:</strong> ${uploadResult.productId}</p>
+        <p><strong>File Name:</strong> ${file.name}</p>
+        <p><strong>File Size:</strong> ${fileSizeMB} MB</p>
+        ${previewFile ? `<p><strong>Preview File:</strong> ${previewFile.name}</p>` : `<p><em>No preview uploaded</em></p>`}
+        <br>
+        <button id='close-overlay-btn' class='close-overlay-btn'>Close</button>
+      `;
+
+      document.getElementById('upload-complete-details').innerHTML = detailsHTML;
+      overlayText.textContent = 'Upload complete.';
+
       document.getElementById('close-overlay-btn').addEventListener('click', () => {
         overlay.style.display = 'none';
       });
