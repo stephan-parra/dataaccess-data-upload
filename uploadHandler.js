@@ -43,10 +43,30 @@ document.addEventListener('DOMContentLoaded', async () => {
     overlayText.textContent = 'Upload cancelled.';
     overlayProgress.style.width = '0%';
     overlay.style.display = 'none';
+    cancelBtn.style.display = 'none';
   });
 
-  const submitBtn = form.querySelector('.submit-btn');
-  const resetBtn = form.querySelector('.reset-btn');
+    const submitBtn = form.querySelector('.submit-btn');
+    const resetBtn = form.querySelector('.reset-btn');
+    submitBtn.disabled = true;
+
+    resetBtn.addEventListener('click', () => {
+    const fileSizeWarning = document.getElementById('file-size-warning');
+    const fileInfo = document.querySelector('#file-upload-area .file-info');
+    const submitBtn = form.querySelector('.submit-btn');
+
+    if (fileSizeWarning) {
+      fileSizeWarning.style.display = 'none';
+      fileSizeWarning.textContent = '';
+    }
+
+    if (fileInfo) {
+      fileInfo.style.display = 'none';
+    }
+
+    submitBtn.disabled = true;
+  });
+
 
   if (dataOwnerIdField && !dataOwnerIdField.value) {
     dataOwnerIdField.value = 'f2e4f1e1-8f18-4df0-891c-153b857e22b9';
@@ -54,15 +74,32 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   fileInput.addEventListener('change', () => {
     const file = fileInput.files[0];
+    const fileSizeWarning = document.getElementById('file-size-warning');
+    const submitBtn = form.querySelector('.submit-btn');
+
     if (file) {
       const extension = file.name.split('.').pop().toLowerCase();
       fileNameField.value = file.name;
       fileFormatField.value = extension.toUpperCase();
       fileSizeField.value = file.size;
+
       if (fileInfo && fileNameDisplay) {
         fileNameDisplay.textContent = file.name;
         fileInfo.style.display = 'block';
       }
+          // Show warning if file > 5GB
+      const FIVE_GB = 5 * 1024 * 1024 * 1024;
+      if (file.size > FIVE_GB) {
+        fileSizeWarning.textContent = 'Warning: File size exceeds 5GB. Uploads over 5GB may fail.';
+        fileSizeWarning.style.display = 'block';
+        submitBtn.disabled = false;
+      } else {
+        fileSizeWarning.style.display = 'none';
+        fileSizeWarning.textContent = '';
+      }
+    } else {
+    // If no file is selected, disable the submit button
+    submitBtn.disabled = true;
     }
   });
 
@@ -107,6 +144,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     try {
       overlay.style.display = 'flex';
+      cancelBtn.style.display = 'inline-block';
       overlayText.textContent = 'Uploading file...';
       overlayProgress.style.transition = 'width 0.5s ease';
       overlayProgress.style.width = '0%';
@@ -136,6 +174,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         await uploadFileToS3WithProgress(uploadResult.previewPreSignedUrl, previewFile);
       }
 
+      cancelBtn.style.display = 'none';
       overlayText.innerHTML = `Upload complete. Product ID: <strong>${uploadResult.productId}</strong><br><br><button id='close-overlay-btn' class='close-overlay-btn'>Close</button>`;
       document.getElementById('close-overlay-btn').addEventListener('click', () => {
         overlay.style.display = 'none';

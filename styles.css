@@ -706,4 +706,15 @@ button:disabled,
   transition: width 0.2s ease-in-out;
 }
 
+.warning-message {
+  margin-top: 10px;
+  padding: 10px;
+  border-left: 4px solid #ff9800;
+  background-color: #fff3cd;
+  color: #856404;
+  font-size: 14px;
+  border-radius: 4px;
+}
+
+
 
