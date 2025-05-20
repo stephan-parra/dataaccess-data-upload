@@ -49,8 +49,21 @@ export async function uploadFileToS3MultiPart(partUrls, fileBlob, uploadId, over
           const etag = xhr.getResponseHeader('ETag');
           completedParts.push({ PartNumber: partNumber, ETag: etag });
           const percent = Math.round(((index + 1) / totalParts) * 100);
+          const current = parseInt(overlayProgress.textContent.replace('%', '')) || 0;
+          const target = percent;
+          const step = target > current ? 1 : -1;
+
+          const interval = setInterval(() => {
+            const value = parseInt(overlayProgress.textContent.replace('%', '')) || 0;
+            if (value === target) {
+              clearInterval(interval);
+            } else {
+              overlayProgress.textContent = `${value + step}%`;
+            }
+          }, 15);
+
           overlayProgress.style.width = `${percent}%`;
-          overlayProgress.textContent = `${percent}%`;
+
           resolve();
         } else {
           reject(new Error(`Failed part ${partNumber}`));
