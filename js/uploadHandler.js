@@ -99,6 +99,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     submitBtn.disabled = true;
     resetBtn.disabled = true;
 
+    // 🆕 Clear the previous result content from the overlay
+    document.getElementById('upload-complete-details').innerHTML = '';
+
     const file = fileInput.files[0];
     if (!file) {
       showError('No file selected.', messageContainer);
