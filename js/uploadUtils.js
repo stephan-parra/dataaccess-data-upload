@@ -48,7 +48,7 @@ export async function uploadFileToS3MultiPart(partUrls, fileBlob, uploadId, over
           uploadedBytes += blob.size;
           const etag = xhr.getResponseHeader('ETag');
           completedParts.push({ PartNumber: partNumber, ETag: etag });
-          const percent = Math.round((uploadedBytes / totalSize) * 100);
+          const percent = Math.round(((index + 1) / totalParts) * 100);
           overlayProgress.style.width = `${percent}%`;
           overlayProgress.textContent = `${percent}%`;
           resolve();
