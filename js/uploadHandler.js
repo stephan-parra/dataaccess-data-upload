@@ -6,6 +6,21 @@ import { uploadFileToS3WithProgress, uploadFileToS3MultiPart } from './uploadUti
 import { showError, showSuccess } from './messageUI.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
+  // ✅ Restrict Captured Date to today or earlier
+  const capturedDateInput = document.getElementById('data_captured_date');
+  if (capturedDateInput) {
+    const today = new Date().toISOString().split('T')[0];
+    capturedDateInput.setAttribute('max', today);
+  }
+
+  const expiryDateInput = document.getElementById('data_expire_date');
+  if (expiryDateInput) {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowStr = tomorrow.toISOString().split('T')[0];
+    expiryDateInput.setAttribute('min', tomorrowStr);
+  }
+  
   const UPLOAD_API_URL = await loadConfig();
 
   const form = document.getElementById('dataForm');
