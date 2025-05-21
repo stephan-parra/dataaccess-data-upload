@@ -750,19 +750,36 @@ input, select, textarea {
   color: #333;
 }
 
-.choices__inner,
-.choices__list--dropdown,
-.choices__input,
-.choices__item {
-  font-family: 'Roboto', sans-serif !important;
-  font-size: 14px; /* optional: match size with input fields */
-}
-
+/* Match dropdown font and spacing with input fields */
 .choices__inner {
-  border-radius: 4px;
-  border: 1px solid #ccc;
+  font-family: 'Roboto', sans-serif !important;
+  font-size: 14px !important;
+  padding: 0.5em 0.75em !important;
+  border: 1px solid #ccc !important;
+  border-radius: 4px !important;
+  height: auto !important;
+  min-height: 38px !important;
+  box-shadow: none !important;
 }
 
+/* Match dropdown arrow style */
+.choices[data-type*="select-one"] .choices__inner {
+  padding-right: 2.5em !important; /* room for arrow */
+}
+
+.choices__list--single {
+  padding: 0 !important;
+}
+
+/* Align the dropdown to look like standard input */
+.choices {
+  margin: 0 !important;
+}
+
+.choices__list--dropdown {
+  font-family: 'Roboto', sans-serif !important;
+  font-size: 14px !important;
+}
 
 
 
