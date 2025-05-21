@@ -9,6 +9,7 @@ function sanitizeFileName(name) {
   return name.trim().replace(/\s+/g, '-');
 }
 
+
 document.addEventListener('DOMContentLoaded', async () => {
   // ✅ Restrict Captured Date to today or earlier
   const capturedDateInput = document.getElementById('data_captured_date');
@@ -24,7 +25,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const tomorrowStr = tomorrow.toISOString().split('T')[0];
     expiryDateInput.setAttribute('min', tomorrowStr);
   }
-
+  
   const config = await loadConfig();
   await populateRegionDropdown(config);
 
@@ -145,12 +146,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const file = fileInput.files[0];
     const warning = document.getElementById('file-size-warning');
     if (file) {
-      const safeFileName = sanitizeFileName(file.name);
-      const extension = safeFileName.split('.').pop().toLowerCase();
-      fileNameField.value = safeFileName;
+      const extension = file.name.split('.').pop().toLowerCase();
+      fileNameField.value = file.name;
       fileFormatField.value = extension.toUpperCase();
-      file.name = safeFileName; // Optional: update file.name to avoid accidental use
-
       fileSizeField.value = file.size;
       fileNameDisplay.textContent = file.name;
       fileInfo.style.display = 'block';
@@ -231,10 +229,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
 
-    const safeFileName = sanitizeFileName(file.name);
     const formData = new FormData(form);
-    formData.set('file_name', safeFileName); // Optional: ensure it's in form data
-    const payload = buildUploadPayload(formData, file, previewInput, safeFileName);
+    const payload = buildUploadPayload(formData, file, previewInput);
 
     try {
       const apiResponse = await fetch(config.UPLOAD_API_URL, {
@@ -254,11 +250,8 @@ document.addEventListener('DOMContentLoaded', async () => {
           overlayText,
           overlayProgress,
           config.COMPLETE_MULTIPART_UPLOAD_URL,
-          abortUploadRef,
-          uploadResult.productId,
-          safeFileName  // ✅ <-- pass sanitized file name
+          abortUploadRef
         );
-
       } else {
         await uploadFileToS3WithProgress(
           uploadResult.presignedUrl,

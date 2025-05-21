@@ -23,7 +23,7 @@ export function uploadFileToS3WithProgress(url, fileBlob, overlayProgress, abort
   });
 }
 
-export async function uploadFileToS3MultiPart(partUrls, fileBlob, uploadId, overlayText, overlayProgress, COMPLETE_MULTIPART_UPLOAD_URL, abortUploadRef, productId, safeFileName) {
+export async function uploadFileToS3MultiPart(partUrls, fileBlob, uploadId, overlayText, overlayProgress, COMPLETE_MULTIPART_UPLOAD_URL, abortUploadRef) {
   const chunkSize = 5 * 1024 * 1024;
   const totalParts = partUrls.length;
   let uploadedBytes = 0;
@@ -75,20 +75,15 @@ export async function uploadFileToS3MultiPart(partUrls, fileBlob, uploadId, over
     });
   }
 
-  const key = `${productId}/${safeFileName}`;
-
+  const key = partUrls[0].split('?')[0].split('.com/')[1];
   const completeResponse = await fetch(COMPLETE_MULTIPART_UPLOAD_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      UploadId: uploadId,
-      Key: key,
-      Parts: completedParts
-    })
+    body: JSON.stringify({ UploadId: uploadId, Key: key, Parts: completedParts })
   });
 
   if (!completeResponse.ok) throw new Error('Failed to complete multipart upload');
   overlayProgress.style.width = '100%';
   overlayProgress.textContent = '100%';
   overlayText.textContent = 'Upload complete. Finalizing...';
-  }
+}
