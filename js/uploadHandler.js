@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const config = await loadConfig();
   await populateRegionDropdown(config);
 
-  async function populateRegionDropdown(config) {
+  async function populateRegionDropdown(config, autoSelect = true) {
     const dropdown = document.getElementById('data_region');
     if (!dropdown) return;
 
@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const regions = await response.json();
 
       const sortedRegions = Object.entries(regions)
-        .filter(([code]) => code !== '#')  // Exclude placeholder
+        .filter(([code]) => code !== '#')
         .sort((a, b) => a[1].localeCompare(b[1]));
 
       dropdown.innerHTML = `<option value="">Select a region</option>`;
@@ -47,17 +47,46 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
 
       // Apply Choices.js
-      new Choices(dropdown, {
+      const choices = new Choices(dropdown, {
         searchEnabled: true,
-        itemSelectText: '', // Removes label from select
-        placeholderValue: 'Select a region or start typing',
-        shouldSort: false // Already sorted manually
+        itemSelectText: '',
+        placeholderValue: 'Select a region',
+        shouldSort: false
       });
+
+      // ✅ Try to auto-select region based on time zone
+      if (autoSelect) {
+        const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const inferredRegion = guessRegionFromTimeZone(timeZone);
+        if (inferredRegion && regions[inferredRegion]) {
+          dropdown.value = inferredRegion;
+          choices.setChoiceByValue(inferredRegion);
+        }
+      }
 
     } catch (err) {
       console.error('Failed to load regions:', err);
       dropdown.innerHTML = `<option value="">Error loading regions</option>`;
     }
+  }
+
+    function guessRegionFromTimeZone(timeZone) {
+    const tzToRegionMap = {
+      'Australia/Sydney': 'AU_NSW',
+      'Australia/Melbourne': 'AU_VIC',
+      'Australia/Perth': 'AU_WA',
+      'Australia/Brisbane': 'AU_QLD',
+      'Pacific/Auckland': 'NZ',
+      'America/New_York': 'US_NY',
+      'America/Los_Angeles': 'US_CA',
+      'America/Chicago': 'US_TX',
+      'America/Toronto': 'CA_ON',
+      'Europe/London': 'UK',
+      'Europe/Dublin': 'IE',
+      'Asia/Singapore': 'SG',
+    };
+
+    return tzToRegionMap[timeZone] || null;
   }
 
 
