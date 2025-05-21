@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       new Choices(dropdown, {
         searchEnabled: true,
         itemSelectText: '', // Removes label from select
-        placeholderValue: 'Select a region',
+        placeholderValue: 'Select a region or start typing',
         shouldSort: false // Already sorted manually
       });
 
