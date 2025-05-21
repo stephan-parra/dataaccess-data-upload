@@ -5,6 +5,10 @@ import { buildUploadPayload } from './payloadBuilder.js';
 import { uploadFileToS3WithProgress, uploadFileToS3MultiPart } from './uploadUtils.js';
 import { showError, showSuccess } from './messageUI.js';
 
+function sanitizeFileName(name) {
+  return name.trim().replace(/\s+/g, '-');
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   // ✅ Restrict Captured Date to today or earlier
   const capturedDateInput = document.getElementById('data_captured_date');
@@ -20,7 +24,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const tomorrowStr = tomorrow.toISOString().split('T')[0];
     expiryDateInput.setAttribute('min', tomorrowStr);
   }
-  
+
   const config = await loadConfig();
   await populateRegionDropdown(config);
 
@@ -141,9 +145,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     const file = fileInput.files[0];
     const warning = document.getElementById('file-size-warning');
     if (file) {
-      const extension = file.name.split('.').pop().toLowerCase();
-      fileNameField.value = file.name;
+      const safeFileName = sanitizeFileName(file.name);
+      const extension = safeFileName.split('.').pop().toLowerCase();
+      fileNameField.value = safeFileName;
       fileFormatField.value = extension.toUpperCase();
+      file.name = safeFileName; // Optional: update file.name to avoid accidental use
+
       fileSizeField.value = file.size;
       fileNameDisplay.textContent = file.name;
       fileInfo.style.display = 'block';
@@ -224,8 +231,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
 
+    const safeFileName = sanitizeFileName(file.name);
     const formData = new FormData(form);
-    const payload = buildUploadPayload(formData, file, previewInput);
+    formData.set('file_name', safeFileName); // Optional: ensure it's in form data
+    const payload = buildUploadPayload(formData, file, previewInput, safeFileName);
 
     try {
       const apiResponse = await fetch(config.UPLOAD_API_URL, {
@@ -245,8 +254,11 @@ document.addEventListener('DOMContentLoaded', async () => {
           overlayText,
           overlayProgress,
           config.COMPLETE_MULTIPART_UPLOAD_URL,
-          abortUploadRef
+          abortUploadRef,
+          uploadResult.productId,
+          safeFileName  // ✅ <-- pass sanitized file name
         );
+
       } else {
         await uploadFileToS3WithProgress(
           uploadResult.presignedUrl,

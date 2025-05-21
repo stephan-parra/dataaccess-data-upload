@@ -1,11 +1,11 @@
-export function buildUploadPayload(formData, file, previewInput) {
+export function buildUploadPayload(formData, file, previewInput, safeFileName) {
   const tags = formData.get('tags')?.split(',').map(t => t.trim()) || [];
   const dataGeoShape = document.getElementById('wkt_output')?.value || '';
   const previewFile = previewInput?.files[0];
   return {
     DataOwnerId: formData.get('data_owner_id'),
     DataOwnerName: formData.get('data_owner_company_name'),
-    FileName: file.name,
+    FileName: safeFileName,
     PreviewFile: previewFile ? previewFile.name : '',
     FileSize: file.size,
     IsMultiPartUpload: file.size > 100 * 1024 * 1024,
