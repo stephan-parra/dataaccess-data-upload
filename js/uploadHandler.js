@@ -160,7 +160,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const payload = buildUploadPayload(formData, file, previewInput);
 
     try {
-      const apiResponse = await fetch(UPLOAD_API_URL, {
+      const apiResponse = await fetch(config.UPLOAD_API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
