@@ -750,6 +750,21 @@ input, select, textarea {
   color: #333;
 }
 
+.choices__inner,
+.choices__list--dropdown,
+.choices__input,
+.choices__item {
+  font-family: 'Roboto', sans-serif !important;
+  font-size: 14px; /* optional: match size with input fields */
+}
+
+.choices__inner {
+  border-radius: 4px;
+  padding: 0.6em;
+  border: 1px solid #ccc;
+}
+
+
 
 
 
