@@ -5,10 +5,6 @@ import { buildUploadPayload } from './payloadBuilder.js';
 import { uploadFileToS3WithProgress, uploadFileToS3MultiPart } from './uploadUtils.js';
 import { showError, showSuccess } from './messageUI.js';
 
-function sanitizeFileName(name) {
-  return name.trim().replace(/\s+/g, '-');
-}
-
 
 document.addEventListener('DOMContentLoaded', async () => {
   // ✅ Restrict Captured Date to today or earlier
