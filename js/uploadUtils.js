@@ -23,7 +23,7 @@ export function uploadFileToS3WithProgress(url, fileBlob, overlayProgress, abort
   });
 }
 
-export async function uploadFileToS3MultiPart(partUrls, fileBlob, uploadId, overlayText, overlayProgress, UPLOAD_API_URL, abortUploadRef) {
+export async function uploadFileToS3MultiPart(partUrls, fileBlob, uploadId, overlayText, overlayProgress, COMPLETE_MULTIPART_UPLOAD_URL, abortUploadRef) {
   const chunkSize = 5 * 1024 * 1024;
   const totalParts = partUrls.length;
   let uploadedBytes = 0;
@@ -76,7 +76,7 @@ export async function uploadFileToS3MultiPart(partUrls, fileBlob, uploadId, over
   }
 
   const key = partUrls[0].split('?')[0].split('.com/')[1];
-  const completeResponse = await fetch(`${UPLOAD_API_URL}/completemultipartupload`, {
+  const completeResponse = await fetch(COMPLETE_MULTIPART_UPLOAD_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ UploadId: uploadId, Key: key, Parts: completedParts })

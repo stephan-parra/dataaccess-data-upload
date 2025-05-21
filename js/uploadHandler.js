@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     expiryDateInput.setAttribute('min', tomorrowStr);
   }
   
-  const UPLOAD_API_URL = await loadConfig();
+  const config = await loadConfig();
 
   const form = document.getElementById('dataForm');
   const fileInput = document.getElementById('file_upload');
@@ -176,7 +176,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           uploadResult.multiPartUploadUrls.UploadId,
           overlayText,
           overlayProgress,
-          UPLOAD_API_URL,
+          config.COMPLETE_MULTIPART_UPLOAD_URL,
           abortUploadRef
         );
       } else {
