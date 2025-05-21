@@ -34,19 +34,32 @@ document.addEventListener('DOMContentLoaded', async () => {
       const response = await fetch(config.REGION_LOOKUP_URL);
       const regions = await response.json();
 
+      const sortedRegions = Object.entries(regions)
+        .filter(([code]) => code !== '#')  // Exclude placeholder
+        .sort((a, b) => a[1].localeCompare(b[1]));
+
       dropdown.innerHTML = `<option value="">Select a region</option>`;
-      for (const [code, name] of Object.entries(regions)) {
-        if (code === '#') continue; // ✅ Skip placeholder note entry
+      for (const [code, name] of sortedRegions) {
         const option = document.createElement('option');
         option.value = code;
         option.textContent = name;
         dropdown.appendChild(option);
       }
-      } catch (err) {
-        console.error('Failed to load regions:', err);
-        dropdown.innerHTML = `<option value="">Error loading regions</option>`;
-      }
+
+      // Apply Choices.js
+      new Choices(dropdown, {
+        searchEnabled: true,
+        itemSelectText: '', // Removes label from select
+        placeholderValue: 'Select a region',
+        shouldSort: false // Already sorted manually
+      });
+
+    } catch (err) {
+      console.error('Failed to load regions:', err);
+      dropdown.innerHTML = `<option value="">Error loading regions</option>`;
+    }
   }
+
 
   const form = document.getElementById('dataForm');
   const fileInput = document.getElementById('file_upload');
