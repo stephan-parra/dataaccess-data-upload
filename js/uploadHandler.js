@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       // ✅ Try to auto-select region based on time zone
       if (autoSelect) {
-        const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const timeZone = Intl?.DateTimeFormat?.().resolvedOptions?.().timeZone;
         const inferredRegion = guessRegionFromTimeZone(timeZone);
         if (inferredRegion && regions[inferredRegion]) {
           dropdown.value = inferredRegion;
@@ -70,7 +70,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-    function guessRegionFromTimeZone(timeZone) {
+  function guessRegionFromTimeZone(timeZone) {
+    if (!timeZone || typeof timeZone !== 'string') return null;
+
     const tzToRegionMap = {
       'Australia/Sydney': 'AU_NSW',
       'Australia/Melbourne': 'AU_VIC',
@@ -88,7 +90,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     return tzToRegionMap[timeZone] || null;
   }
-
 
   const form = document.getElementById('dataForm');
   const fileInput = document.getElementById('file_upload');
