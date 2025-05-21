@@ -25,26 +25,27 @@ document.addEventListener('DOMContentLoaded', async () => {
   await populateRegionDropdown(config);
 
   async function populateRegionDropdown(config) {
-  const dropdown = document.getElementById('data_region');
-  if (!dropdown) return;
+    const dropdown = document.getElementById('data_region');
+    if (!dropdown) return;
 
-  dropdown.innerHTML = `<option value="">Loading regions...</option>`;
+    dropdown.innerHTML = `<option value="">Loading regions...</option>`;
 
-  try {
-    const response = await fetch(config.REGION_LOOKUP_URL);
-    const regions = await response.json();
+    try {
+      const response = await fetch(config.REGION_LOOKUP_URL);
+      const regions = await response.json();
 
-    dropdown.innerHTML = `<option value="">Select a region</option>`;
-    for (const [code, name] of Object.entries(regions)) {
-      const option = document.createElement('option');
-      option.value = code;
-      option.textContent = name;
-      dropdown.appendChild(option);
-    }
-    } catch (err) {
-      console.error('Failed to load regions:', err);
-      dropdown.innerHTML = `<option value="">Error loading regions</option>`;
-    }
+      dropdown.innerHTML = `<option value="">Select a region</option>`;
+      for (const [code, name] of Object.entries(regions)) {
+        if (code === '#') continue; // ✅ Skip placeholder note entry
+        const option = document.createElement('option');
+        option.value = code;
+        option.textContent = name;
+        dropdown.appendChild(option);
+      }
+      } catch (err) {
+        console.error('Failed to load regions:', err);
+        dropdown.innerHTML = `<option value="">Error loading regions</option>`;
+      }
   }
 
   const form = document.getElementById('dataForm');
