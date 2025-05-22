@@ -168,20 +168,40 @@ document.addEventListener('DOMContentLoaded', async () => {
   const resetBtn = form.querySelector('.reset-btn');
   submitBtn.disabled = true;
 
-  resetBtn.addEventListener('click', () => {
-    document.getElementById('file-size-warning').style.display = 'none';
-    fileInfo.style.display = 'none';
-    submitBtn.disabled = true;
+    resetBtn.addEventListener('click', () => {
+      document.getElementById('file-size-warning').style.display = 'none';
+      fileInfo.style.display = 'none';
+      submitBtn.disabled = true;
 
-    // 🧹 Clear the Quill editor content
-    if (quill) {
-      quill.setContents([]);
-    }
+      // 🧹 Clear the Quill editor content
+      if (quill) {
+        quill.setContents([]);
+      }
 
-    // Also clear the hidden input for long_description
-    document.getElementById('long_description').value = '';
-  });
+      // 🧹 Clear hidden long_description input
+      document.getElementById('long_description').value = '';
 
+      // ⬆️ Scroll to top of the form
+      form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      // 🗺️ Clear the map and WKT text area
+      const wktTextarea = document.getElementById('wkt_output');
+      if (wktTextarea) {
+        wktTextarea.value = '';
+        wktTextarea.classList.remove('error');
+      }
+
+      // Hide validation error message if shown
+      const validationMsg = document.getElementById('wkt-validation-error');
+      if (validationMsg) {
+        validationMsg.style.display = 'none';
+      }
+
+      // Remove drawn polygon from map (via global drawnItems)
+      if (typeof drawnItems !== 'undefined') {
+        drawnItems.clearLayers();
+      }
+    });
 
   if (dataOwnerIdField && !dataOwnerIdField.value) {
     dataOwnerIdField.value = 'f2e4f1e1-8f18-4df0-891c-153b857e22b9';
