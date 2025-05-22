@@ -168,40 +168,39 @@ document.addEventListener('DOMContentLoaded', async () => {
   const resetBtn = form.querySelector('.reset-btn');
   submitBtn.disabled = true;
 
-    resetBtn.addEventListener('click', () => {
-      document.getElementById('file-size-warning').style.display = 'none';
-      fileInfo.style.display = 'none';
-      submitBtn.disabled = true;
+  resetBtn.addEventListener('click', () => {
+    // 🧹 Clear warnings and file info
+    document.getElementById('file-size-warning').style.display = 'none';
+    fileInfo.style.display = 'none';
+    submitBtn.disabled = true;
 
-      // 🧹 Clear the Quill editor content
-      if (quill) {
-        quill.setContents([]);
-      }
+    // 🧹 Clear Quill editor and hidden input
+    if (quill) quill.setContents([]);
+    document.getElementById('long_description').value = '';
 
-      // 🧹 Clear hidden long_description input
-      document.getElementById('long_description').value = '';
+    // ⬆️ Scroll form to top
+    form.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-      // ⬆️ Scroll to top of the form
-      form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // 🗺️ Clear map and WKT field
+    const wktTextarea = document.getElementById('wkt_output');
+    if (wktTextarea) {
+      wktTextarea.value = '';
+      wktTextarea.classList.remove('error');
+    }
+    const validationMsg = document.getElementById('wkt-validation-error');
+    if (validationMsg) validationMsg.style.display = 'none';
+    if (window.drawnItems) window.drawnItems.clearLayers();
 
-      // 🗺️ Clear the map and WKT text area
-      const wktTextarea = document.getElementById('wkt_output');
-      if (wktTextarea) {
-        wktTextarea.value = '';
-        wktTextarea.classList.remove('error');
-      }
+    // 🧹 Clear preview upload
+    if (previewInput) previewInput.value = '';
+    const previewInfo = document.querySelector('#preview-upload-area .preview-info');
+    const previewFileName = previewInfo?.querySelector('.file-name');
+    if (previewInfo) {
+      previewInfo.style.display = 'none';
+      if (previewFileName) previewFileName.textContent = '';
+    }
+  });
 
-      // Hide validation error message if shown
-      const validationMsg = document.getElementById('wkt-validation-error');
-      if (validationMsg) {
-        validationMsg.style.display = 'none';
-      }
-
-      // Remove drawn polygon from map (via global drawnItems)
-      if (typeof drawnItems !== 'undefined') {
-        drawnItems.clearLayers();
-      }
-    });
 
   if (dataOwnerIdField && !dataOwnerIdField.value) {
     dataOwnerIdField.value = 'f2e4f1e1-8f18-4df0-891c-153b857e22b9';
