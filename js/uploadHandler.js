@@ -172,7 +172,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('file-size-warning').style.display = 'none';
     fileInfo.style.display = 'none';
     submitBtn.disabled = true;
+
+    // 🧹 Clear the Quill editor content
+    if (quill) {
+      quill.setContents([]);
+    }
+
+    // Also clear the hidden input for long_description
+    document.getElementById('long_description').value = '';
   });
+
 
   if (dataOwnerIdField && !dataOwnerIdField.value) {
     dataOwnerIdField.value = 'f2e4f1e1-8f18-4df0-891c-153b857e22b9';
