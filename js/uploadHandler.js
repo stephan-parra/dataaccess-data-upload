@@ -118,6 +118,21 @@ document.addEventListener('DOMContentLoaded', async () => {
   */
 
   const form = document.getElementById('dataForm');
+
+  // Initialize Quill rich text editor for long_description
+  const quill = new Quill('#long_description_editor', {
+    theme: 'snow',
+    placeholder: 'Enter detailed description here...',
+    modules: {
+      toolbar: [
+        ['bold', 'italic', 'underline'],
+        [{ list: 'ordered' }, { list: 'bullet' }],
+        ['link', 'image'],
+        ['clean']
+      ]
+    }
+  });
+
   const fileInput = document.getElementById('file_upload');
   const previewInput = document.getElementById('preview_upload');
   const fileNameField = document.getElementById('file_name');
@@ -208,7 +223,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     submitBtn.disabled = true;
     resetBtn.disabled = true;
 
-    // 🆕 Clear the previous result content from the overlay
+    // Clear the previous result content from the overlay
     document.getElementById('upload-complete-details').innerHTML = '';
 
     const file = fileInput.files[0];
@@ -218,6 +233,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       resetBtn.disabled = false;
       return;
     }
+
+    document.getElementById('long_description').value = quill.root.innerHTML;
 
     if (file.size > 5 * 1024 * 1024 * 1024) {
       showError('Selected file is larger than 5GB. Please choose a smaller file.', messageContainer);
@@ -251,6 +268,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     const formData = new FormData(form);
+    // Copy rich text HTML from Quill to hidden input
+    document.getElementById('long_description').value = quill.root.innerHTML;
+
     const payload = buildUploadPayload(formData, file, previewInput);
 
     try {
