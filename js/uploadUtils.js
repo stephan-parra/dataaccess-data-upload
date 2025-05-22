@@ -24,7 +24,7 @@ export function uploadFileToS3WithProgress(url, fileBlob, overlayProgress, abort
 }
 
 export async function uploadFileToS3MultiPart(partUrls, fileBlob, uploadId, overlayText, overlayProgress, COMPLETE_MULTIPART_UPLOAD_URL, abortUploadRef) {
-  const chunkSize = 5 * 1024 * 1024;
+  const chunkSize = Math.ceil(fileBlob.size / partUrls.length);
   const totalParts = partUrls.length;
   let uploadedBytes = 0;
   const totalSize = fileBlob.size;
