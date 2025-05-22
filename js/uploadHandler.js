@@ -25,6 +25,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   const config = await loadConfig();
   await populateRegionDropdown(config);
 
+  function fetchWithTimeout(url, timeout = 3000) {
+    return Promise.race([
+      fetch(url),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Request timed out')), timeout)
+      )
+    ]);
+  }
+
+
   async function populateRegionDropdown(config, autoSelect = true) {
     const dropdown = document.getElementById('data_region');
     if (!dropdown) return;
@@ -32,7 +42,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     dropdown.innerHTML = `<option value="">Loading regions...</option>`;
 
     try {
-      const response = await fetch(config.REGION_LOOKUP_URL);
+      const response = await fetchWithTimeout(config.REGION_LOOKUP_URL, 3000);
       const regions = await response.json();
 
       const sortedRegions = Object.entries(regions)
@@ -66,9 +76,23 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
 
     } catch (err) {
-      console.error('Failed to load regions:', err);
-      dropdown.innerHTML = `<option value="">Error loading regions</option>`;
-    }
+        console.error('Failed to load regions:', err);
+        const container = dropdown.parentElement;
+
+        // Remove the select dropdown
+        if (dropdown) dropdown.remove();
+
+        // Create a fallback input field
+        const fallbackInput = document.createElement('input');
+        fallbackInput.type = 'text';
+        fallbackInput.id = 'data_region';
+        fallbackInput.name = 'data_region';
+        fallbackInput.required = true;
+        fallbackInput.placeholder = 'Enter region manually';
+        fallbackInput.classList.add('manual-region-input');
+
+        container.appendChild(fallbackInput);
+      }
   }
 
   function guessRegionFromTimeZone(timeZone) {

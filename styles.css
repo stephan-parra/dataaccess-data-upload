@@ -781,6 +781,14 @@ input, select, textarea {
   font-size: 14px !important;
 }
 
+.manual-region-input {
+  border: 1px solid #ccc;
+  padding: 8px;
+  border-radius: 4px;
+  width: 100%;
+}
+
+
 
 
 
