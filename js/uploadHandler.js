@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     ]);
   }
 
-
+/*
   async function populateRegionDropdown(config, autoSelect = true) {
     const dropdown = document.getElementById('data_region');
     if (!dropdown) return;
@@ -115,6 +115,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     return tzToRegionMap[timeZone] || null;
   }
+  */
 
   const form = document.getElementById('dataForm');
   const fileInput = document.getElementById('file_upload');
