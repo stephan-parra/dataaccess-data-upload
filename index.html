@@ -43,7 +43,33 @@
               </div>
             </div>
 
-            <!-- [Other fields above here like file_name, format, type, etc.] -->
+              <div class="form-group">
+                <label for="file_name" class="required">File Name</label>
+                <input type="text" id="file_name" name="file_name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="file_format" class="required">File Format</label>
+                <input type="text" id="file_format" name="file_format" required>
+            </div>
+
+            <div class="form-group">
+                <label for="data_type" class="required">Type of Data</label>
+                <select id="data_type" name="data_type" required>
+                <option value="">Select a data type</option>
+                <option value="BIM">BIM</option>
+                <option value="CAD">CAD</option>
+                <option value="CSV_Excel">CSV / Excel</option>
+                <option value="GeoTIFF">GeoTIFF / TIFF</option>
+                <option value="GIS">GIS</option>
+                <option value="GPR">GPR</option>
+                <option value="MP4">MP4 / Video</option>
+                <option value="LIDAR">LIDAR</option>
+                <option value="PDF">PDF</option>
+                <option value="Photo">Photo</option>
+                <option value="Multi">Multi Data Types</option>
+                </select>
+            </div>
 
             <div class="form-group">
               <label for="product_name" class="required">Product Name</label>
@@ -61,8 +87,6 @@
                 <div id="long_description_editor" class="quill-editor" style="height: 200px;"></div>
                 <input type="hidden" name="long_description" id="long_description" />
             </div>
-
-            <!-- [Remaining form inputs below here – unchanged] -->
 
             <div class="form-group">
               <label for="data_captured_date" class="required">Captured Date</label>
