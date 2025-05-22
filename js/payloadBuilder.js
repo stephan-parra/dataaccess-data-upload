@@ -15,7 +15,6 @@ export function buildUploadPayload(formData, file, previewInput) {
     DateDataCaptured: new Date(formData.get('data_captured_date')).toISOString(),
     DateDataExpired: new Date(formData.get('data_expire_date')).toISOString(),
     DateDataUploaded: new Date().toISOString(),
-    DataRegion: formData.get('data_region'),
     DataFormatType: formData.get('data_type'),
     Tags: tags,
     DataResellPrice: parseFloat(formData.get('data_resell_price') || 0),
