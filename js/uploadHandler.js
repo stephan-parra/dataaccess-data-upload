@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
   
   const config = await loadConfig();
-  await populateRegionDropdown(config);
+  // await populateRegionDropdown(config);
 
   function fetchWithTimeout(url, timeout = 3000) {
     return Promise.race([
