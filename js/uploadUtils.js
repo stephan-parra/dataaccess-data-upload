@@ -30,6 +30,11 @@ export async function uploadFileToS3MultiPart(partUrls, fileBlob, uploadId, over
   const totalSize = fileBlob.size;
   const completedParts = [];
 
+  const expectedParts = Math.ceil(fileBlob.size / chunkSize);
+  if (partUrls.length < expectedParts) {
+    throw new Error(`❌ Not enough presigned URLs. Expected ${expectedParts}, but got ${partUrls.length}`);
+  }
+
   for (let index = 0; index < totalParts; index++) {
     if (abortUploadRef.cancelled) throw new Error('Upload cancelled by user.');
     const url = partUrls[index];
