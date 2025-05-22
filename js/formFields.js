@@ -1,8 +1,7 @@
 export function validateFormFields(form) {
   const requiredFields = [
     'file_name', 'file_format', 'data_type', 'data_captured_date',
-    'data_owner_company_name', 'data_owner_id',
-    'number_of_files', 'product_name', 'data_resell_price',
+    'data_owner_id', 'product_name', 'data_resell_price',
     'short_description', 'wkt_output'
   ];
   const missing = [];

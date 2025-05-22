@@ -4,7 +4,6 @@ export function buildUploadPayload(formData, file, previewInput) {
   const previewFile = previewInput?.files[0];
   return {
     DataOwnerId: formData.get('data_owner_id'),
-    DataOwnerName: formData.get('data_owner_company_name'),
     FileName: file.name,
     PreviewFile: previewFile ? previewFile.name : '',
     FileSize: file.size,
