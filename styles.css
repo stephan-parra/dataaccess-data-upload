@@ -832,6 +832,17 @@ input, select, textarea {
   min-width: 32px;
 }
 
+.quill-preview-panel {
+  border: 1px solid #ccc;
+  background-color: #fff;
+  padding: 20px;
+  margin-top: 15px;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  font-family: 'Roboto', sans-serif;
+}
+
+
 
 
 

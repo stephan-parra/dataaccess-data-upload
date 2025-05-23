@@ -146,6 +146,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
+  const previewBtn = document.getElementById('preview-btn');
+  const previewPanel = document.getElementById('quill-preview');
+
+  previewBtn?.addEventListener('click', () => {
+    const html = quill.root.innerHTML;
+    previewPanel.innerHTML = html;
+    previewPanel.style.display = 'block';
+    previewPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+
   const fileInput = document.getElementById('file_upload');
   const previewInput = document.getElementById('preview_upload');
   const fileNameField = document.getElementById('file_name');
