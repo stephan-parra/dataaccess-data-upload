@@ -5,12 +5,38 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Authenticating...</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(135deg, #2196F3, #21CBF3);
+      color: #fff;
+    }
+    .auth-message {
+      text-align: center;
+      background-color: rgba(255, 255, 255, 0.1);
+      padding: 2rem 3rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      font-size: 1.4rem;
+    }
+    .auth-message span {
+      display: inline-block;
+      margin-top: 1rem;
+      font-size: 1rem;
+      opacity: 0.8;
+    }
+  </style>
   <script type="module">
     import { UserManager } from 'https://cdn.jsdelivr.net/npm/oidc-client-ts/+esm';
 
     const userManager = new UserManager({
       authority: 'https://usmi.peldev.net/sharedservices/sso',
-      client_id: 'DataAccess_Public_Client',
+      client_id: 'DataAccess_Client',
       redirect_uri: window.location.origin + '/dataaccess-data-upload/callback.html',
       response_type: 'code',
       scope: 'openid profile email',
@@ -19,15 +45,18 @@
     userManager.signinRedirectCallback()
       .then(user => {
         sessionStorage.setItem('access_token', user.access_token);
-        window.location.href = 'index.html';
+        window.location.href = window.location.origin + '/dataaccess-data-upload/index.html';
       })
       .catch(err => {
         console.error(err);
-        document.body.innerHTML = '<h3>Authentication failed. Check console for details.</h3>';
+        document.getElementById('status-message').textContent = 'Authentication failed. Check console for details.';
       });
   </script>
 </head>
 <body>
-  <p>Completing authentication...</p>
+  <div class="auth-message">
+    <p id="status-message">Completing authentication...</p>
+    <span>Please wait while we log you in securely.</span>
+  </div>
 </body>
 </html>
