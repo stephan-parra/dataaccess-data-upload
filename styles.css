@@ -813,6 +813,25 @@ input, select, textarea {
     min-width: 100% !important;
   }
 }
+.ql-toolbar.ql-snow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px; /* spacing between icon groups */
+}
+
+.ql-toolbar .ql-formats {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 8px;
+}
+
+.ql-toolbar button {
+  padding: 6px;
+  margin: 0;
+  min-width: 32px;
+}
+
 
 
 
