@@ -34,23 +34,31 @@
   <script type="module">
     import { UserManager } from 'https://cdn.jsdelivr.net/npm/oidc-client-ts/+esm';
 
-    const userManager = new UserManager({
-      authority: 'https://usmi.peldev.net/sharedservices/sso',
-      client_id: 'DataAccess_Public_Client',
-      redirect_uri: window.location.origin + '/dataaccess-data-upload/callback.html',
-      response_type: 'code',
-      scope: 'openid profile email',
-    });
+    async function runAuthentication() {
+      try {
+        const config = await fetch(window.location.origin + '/dataaccess-data-upload/config.json')
+          .then(res => res.json());
 
-    userManager.signinRedirectCallback()
-      .then(user => {
+        const userManager = new UserManager({
+          authority: config.OIDC_AUTHORITY,
+          client_id: config.OIDC_CLIENT_ID,
+          redirect_uri: window.location.origin + config.OIDC_REDIRECT_URI_PATH,
+          response_type: 'code',
+          scope: config.OIDC_SCOPE
+        });
+
+        const user = await userManager.signinRedirectCallback();
         sessionStorage.setItem('access_token', user.access_token);
         window.location.href = window.location.origin + '/dataaccess-data-upload/index.html';
-      })
-      .catch(err => {
+
+      } catch (err) {
         console.error(err);
-        document.getElementById('status-message').textContent = 'Authentication failed. Check console for details.';
-      });
+        document.getElementById('status-message').textContent =
+          'Authentication failed. Check console for details.';
+      }
+    }
+
+    runAuthentication();
   </script>
 </head>
 <body>
