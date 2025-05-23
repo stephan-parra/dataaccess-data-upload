@@ -880,7 +880,6 @@ input, select, textarea {
 }
 
 .preview-link {
-  align-self: flex-start; /* or use flex-end for right alignment */
   background: none;
   border: none;
   color: #1565C0;
@@ -889,14 +888,15 @@ input, select, textarea {
   cursor: pointer;
   text-decoration: underline;
   padding: 0;
-  transition: none;
+  margin: 0;
+  align-self: flex-start;
 }
+
 
 .preview-link:hover {
   color: #1565C0;
   text-decoration: underline;
 }
-
 
 .quill-preview-panel {
   margin-top: 10px;
@@ -906,13 +906,3 @@ input, select, textarea {
   background-color: #fafafa;
   font-family: 'Roboto', sans-serif;
 }
-
-
-
-
-
-
-
-
-
-
