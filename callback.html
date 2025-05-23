@@ -13,22 +13,22 @@
       height: 100vh;
       margin: 0;
       font-family: 'Roboto', sans-serif;
-      background: linear-gradient(135deg, #2196F3, #21CBF3);
-      color: #fff;
+      background: #fff;
+      color: #333;
     }
     .auth-message {
       text-align: center;
-      background-color: rgba(255, 255, 255, 0.1);
+      background-color: #f4f4f4;
       padding: 2rem 3rem;
       border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
       font-size: 1.4rem;
     }
     .auth-message span {
       display: inline-block;
       margin-top: 1rem;
       font-size: 1rem;
-      opacity: 0.8;
+      color: #666;
     }
   </style>
   <script type="module">
@@ -36,7 +36,7 @@
 
     const userManager = new UserManager({
       authority: 'https://usmi.peldev.net/sharedservices/sso',
-      client_id: 'DataAccess_Client',
+      client_id: 'DataAccess_Public_Client',
       redirect_uri: window.location.origin + '/dataaccess-data-upload/callback.html',
       response_type: 'code',
       scope: 'openid profile email',
