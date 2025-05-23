@@ -81,16 +81,16 @@
               <input type="text" id="short_description" name="short_description" required maxlength="200" placeholder="Enter up to 200 characters" />
             </div>
 
+            <div class="editor-header">
+                <button type="button" id="preview-btn" class="preview-link">🔍 Preview</button>
+            </div>
+
             <!-- Rich Text Editor Integration -->
             <div class="form-group full-width">
                 <label for="long_description_editor">Long Description</label>
                 <div id="long_description_editor" class="quill-editor" style="height: 200px;"></div>
                 <input type="hidden" name="long_description" id="long_description" />
             </div>
-
-            <button type="button" id="preview-btn" class="preview-button">Preview</button>
-            <div id="quill-preview" class="quill-preview-panel" style="display: none;"></div>
-
 
             <div class="form-group">
               <label for="data_captured_date" class="required">Captured Date</label>
@@ -172,6 +172,15 @@
       <button id="cancel-upload-btn">Cancel</button>
     </div>
   </div>
+
+    <!-- Preview Modal -->
+    <div id="quill-modal" class="modal">
+    <div class="modal-content">
+        <span class="modal-close" id="modal-close">&times;</span>
+        <h2 style="margin-top: 0;">Preview</h2>
+        <div id="quill-preview" class="quill-preview-panel"></div>
+    </div>
+    </div>
 
   <!-- Scripts -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>

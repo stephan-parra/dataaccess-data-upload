@@ -148,14 +148,26 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const previewBtn = document.getElementById('preview-btn');
   const previewPanel = document.getElementById('quill-preview');
+  const modal = document.getElementById('quill-modal');
+  const modalClose = document.getElementById('modal-close');
 
   previewBtn?.addEventListener('click', () => {
     const html = quill.root.innerHTML;
     previewPanel.innerHTML = html;
-    previewPanel.style.display = 'block';
-    previewPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    modal.style.display = 'block';
   });
 
+  // Close modal when clicking X
+  modalClose?.addEventListener('click', () => {
+    modal.style.display = 'none';
+  });
+
+  // Close modal when clicking outside the modal content
+  window.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      modal.style.display = 'none';
+    }
+  });
 
   const fileInput = document.getElementById('file_upload');
   const previewInput = document.getElementById('preview_upload');
