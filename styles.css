@@ -858,10 +858,6 @@ input, select, textarea {
   z-index: 10;
 }
 
-.preview-link:hover {
-  color: #0d47a1;
-}
-
 /* Modal Styles */
 .modal {
   display: none;
