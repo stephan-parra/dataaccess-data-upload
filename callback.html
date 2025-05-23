@@ -1,0 +1,33 @@
+<!-- callback.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Authenticating...</title>
+  <script type="module">
+    import { UserManager } from 'https://cdn.jsdelivr.net/npm/oidc-client-ts/+esm';
+
+    const userManager = new UserManager({
+      authority: 'https://usmi.peldev.net/sharedservices/sso',
+      client_id: 'DataAccess_Client',
+      redirect_uri: window.location.origin + '/callback.html',
+      response_type: 'code',
+      scope: 'openid profile email',
+    });
+
+    userManager.signinRedirectCallback()
+      .then(user => {
+        sessionStorage.setItem('access_token', user.access_token);
+        window.location.href = 'index.html';
+      })
+      .catch(err => {
+        console.error(err);
+        document.body.innerHTML = '<h3>Authentication failed. Check console for details.</h3>';
+      });
+  </script>
+</head>
+<body>
+  <p>Completing authentication...</p>
+</body>
+</html>
