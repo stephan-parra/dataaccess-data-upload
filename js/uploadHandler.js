@@ -380,8 +380,36 @@ document.addEventListener('DOMContentLoaded', async () => {
       overlayProgress.style.width = '100%';
       overlayProgress.textContent = '100%';
       cancelBtn.style.display = 'none';
-      form.reset();
+      
+      // Preserve long description content
+      const longDescriptionHtml = quill.root.innerHTML;
+
+      // Clear all fields except long description
+      form.querySelectorAll('input, select, textarea').forEach(el => {
+        if (el.id !== 'long_description') {
+          if (el.type === 'checkbox' || el.type === 'radio') {
+            el.checked = false;
+          } else {
+            el.value = '';
+          }
+        }
+      });
+
+      // Manually reset selects (for Choices.js support)
+      const selects = form.querySelectorAll('select');
+      selects.forEach(select => {
+        if (select.id !== 'data_type') return;
+        select.value = '';
+        if (select.choices) select.choices.setChoiceByValue('');
+      });
+
+      // Restore long description content
+      document.getElementById('long_description').value = longDescriptionHtml;
+      quill.root.innerHTML = longDescriptionHtml;
+
+      // Hide file info box
       if (fileInfo) fileInfo.style.display = 'none';
+
 
       const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
       document.getElementById('upload-complete-details').innerHTML = `
