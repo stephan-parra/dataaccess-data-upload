@@ -417,7 +417,17 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (previewInfo) {
         previewInfo.style.display = 'none';
         if (previewFileName) previewFileName.textContent = '';
-}
+      }
+
+      // Clear WKT and reset validation
+      const wktTextarea = document.getElementById('wkt_output');
+      if (wktTextarea) {
+        wktTextarea.value = '';
+        wktTextarea.classList.remove('error');
+      }
+      const validationMsg = document.getElementById('wkt-validation-error');
+      if (validationMsg) validationMsg.style.display = 'none';
+      if (window.drawnItems) window.drawnItems.clearLayers();
 
 
       const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
