@@ -134,7 +134,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         [{ indent: '-1' }, { indent: '+1' }],
         [{ color: [] }],
         ['clean']
-      ]
+      ],
+      clipboard: {
+        matchers: [
+          ['*', (node, delta) => {
+            // Force pasted content to plain text
+            return new Delta().insert(node.innerText || node.textContent);
+          }]
+        ]
+      }
     }
   });
 
