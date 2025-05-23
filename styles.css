@@ -838,26 +838,6 @@ input, select, textarea {
   margin-bottom: 4px;
 }
 
-.quill-wrapper {
-  position: relative;
-}
-
-.preview-link {
-  position: absolute;
-  top: -30px;
-  right: 0;
-  background: none;
-  border: none;
-  color: #1565C0;
-  font-weight: 500;
-  font-size: 14px;
-  cursor: pointer;
-  text-decoration: underline;
-  padding: 0;
-  transition: color 0.2s ease;
-  z-index: 10;
-}
-
 /* Modal Styles */
 .modal {
   display: none;
@@ -892,6 +872,31 @@ input, select, textarea {
 .modal-close:hover {
   color: #000;
 }
+
+.quill-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.preview-link {
+  align-self: flex-start; /* or use flex-end for right alignment */
+  background: none;
+  border: none;
+  color: #1565C0;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+  transition: none;
+}
+
+.preview-link:hover {
+  color: #1565C0;
+  text-decoration: underline;
+}
+
 
 .quill-preview-panel {
   margin-top: 10px;
