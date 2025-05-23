@@ -838,7 +838,14 @@ input, select, textarea {
   margin-bottom: 4px;
 }
 
+.quill-wrapper {
+  position: relative;
+}
+
 .preview-link {
+  position: absolute;
+  top: -30px;
+  right: 0;
   background: none;
   border: none;
   color: #1565C0;
@@ -848,6 +855,7 @@ input, select, textarea {
   text-decoration: underline;
   padding: 0;
   transition: color 0.2s ease;
+  z-index: 10;
 }
 
 .preview-link:hover {
