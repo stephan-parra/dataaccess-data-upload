@@ -27,10 +27,17 @@
 </head>
 
 <body>
-    <div id="logout-container">
-        <button id="logout-btn">Logout</button>
-    </div>
   <div class="container">
+    <div class="user-menu">
+    <div class="user-avatar" id="user-avatar">U</div>
+    <div class="dropdown" id="user-dropdown">
+        <p class="user-name" id="user-name">User</p>
+        <p class="user-email" id="user-email">user@example.com</p>
+        <hr />
+        <button id="logout-btn">Sign out</button>
+    </div>
+    </div>
+
     <h1 class="portal-title">
       <span class="portal-title-main">DataAccess Portal</span>
       <span class="portal-title-sub">Upload</span>
@@ -197,10 +204,10 @@
   <script src="map.js"></script>
   <script type="module" src="js/uploadHandler.js"></script>
   
-  <script type="module">
+<script type="module">
   import { UserManager } from 'https://cdn.jsdelivr.net/npm/oidc-client-ts/+esm';
 
-  async function setupLogout() {
+  async function setupUserMenu() {
     const config = await fetch(window.location.origin + '/dataaccess-data-upload/config.json')
       .then(res => res.json());
 
@@ -213,18 +220,41 @@
       post_logout_redirect_uri: window.location.origin + '/dataaccess-data-upload/login.html'
     });
 
+    const avatar = document.getElementById('user-avatar');
+    const dropdown = document.getElementById('user-dropdown');
     const logoutBtn = document.getElementById('logout-btn');
-    if (logoutBtn) {
-      logoutBtn.addEventListener('click', () => {
-        sessionStorage.clear(); // Clear token
-        userManager.signoutRedirect(); // Redirect to SSO logout
-      });
+
+    avatar.addEventListener('click', () => {
+      dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+    });
+
+    document.addEventListener('click', e => {
+      if (!avatar.contains(e.target) && !dropdown.contains(e.target)) {
+        dropdown.style.display = 'none';
+      }
+    });
+
+    logoutBtn.addEventListener('click', () => {
+      sessionStorage.clear();
+      userManager.signoutRedirect();
+    });
+
+    // Decode token for display
+    const token = sessionStorage.getItem('access_token');
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        document.getElementById('user-name').textContent = payload.name || 'User';
+        document.getElementById('user-email').textContent = payload.email || '';
+        document.getElementById('user-avatar').textContent = (payload.name || 'U').charAt(0).toUpperCase();
+      } catch (e) {
+        console.warn('Token decode failed', e);
+      }
     }
   }
 
-  document.addEventListener('DOMContentLoaded', setupLogout);
+  document.addEventListener('DOMContentLoaded', setupUserMenu);
 </script>
 
 </body>
-
 </html>

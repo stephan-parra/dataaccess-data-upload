@@ -907,23 +907,70 @@ input, select, textarea {
   font-family: 'Roboto', sans-serif;
 }
 
-#logout-container {
+.user-menu {
+  position: relative;
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  background-color: #4caf50;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 16px;
+  user-select: none;
+}
+
+.dropdown {
   position: absolute;
-  top: 20px;
-  right: 20px;
+  top: 45px;
+  right: 0;
+  background-color: white;
+  color: #333;
+  padding: 10px 15px;
+  border-radius: 6px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  min-width: 200px;
+  display: none;
+  z-index: 999;
+}
+
+.dropdown .user-name {
+  font-weight: 600;
+  margin: 0;
+}
+
+.dropdown .user-email {
+  font-size: 0.9em;
+  color: #666;
+  margin: 4px 0 8px;
+}
+
+.dropdown hr {
+  margin: 8px 0;
+  border: none;
+  border-top: 1px solid #ddd;
 }
 
 #logout-btn {
-  background-color: #f44336;
-  color: white;
+  background-color: transparent;
+  color: #f44336;
   border: none;
-  padding: 10px 16px;
+  padding: 6px 0;
+  width: 100%;
+  text-align: left;
   font-size: 14px;
-  border-radius: 6px;
   cursor: pointer;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
 }
 
 #logout-btn:hover {
-  background-color: #d32f2f;
+  text-decoration: underline;
 }
