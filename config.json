@@ -5,6 +5,6 @@
   "OIDC_AUTHORITY": "https://usmi.peldev.net/sharedservices/sso",
   "OIDC_CLIENT_ID": "DataAccess_Public_Client",
   "OIDC_REDIRECT_URI_PATH": "/dataaccess-data-upload/callback.html",
-  "OIDC_POST_LOGOUT_URI_PATH": "",
+  "OIDC_POST_LOGOUT_URI_PATH": "/dataaccess-data-upload/logout.html",
   "OIDC_SCOPE": "openid profile email"
 }
