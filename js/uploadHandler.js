@@ -119,15 +119,20 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const form = document.getElementById('dataForm');
 
+  const Delta = Quill.import('delta');
+  
   // Initialize Quill rich text editor for long_description
   const quill = new Quill('#long_description_editor', {
     theme: 'snow',
     placeholder: 'Enter detailed description here...',
     modules: {
       toolbar: [
+        [{ header: [1, 2, 3, false] }],
         ['bold', 'italic', 'underline'],
         [{ list: 'ordered' }, { list: 'bullet' }],
-        ['link', 'image'],
+        [{ align: [] }],
+        [{ indent: '-1' }, { indent: '+1' }],
+        [{ color: [] }],
         ['clean']
       ]
     }
