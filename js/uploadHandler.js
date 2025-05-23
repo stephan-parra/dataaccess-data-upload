@@ -380,7 +380,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       overlayProgress.style.width = '100%';
       overlayProgress.textContent = '100%';
       cancelBtn.style.display = 'none';
-      
+
       // Preserve long description content
       const longDescriptionHtml = quill.root.innerHTML;
 
@@ -409,6 +409,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       // Hide file info box
       if (fileInfo) fileInfo.style.display = 'none';
+
+      // Clear preview file input and preview info
+      if (previewInput) previewInput.value = '';
+      const previewInfo = document.querySelector('#preview-upload-area .preview-info');
+      const previewFileName = previewInfo?.querySelector('.file-name');
+      if (previewInfo) {
+        previewInfo.style.display = 'none';
+        if (previewFileName) previewFileName.textContent = '';
+}
 
 
       const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
