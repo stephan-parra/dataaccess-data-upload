@@ -902,33 +902,6 @@ input, select, textarea {
   font-family: 'Roboto', sans-serif;
 }
 
-.quill-editor-container {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.preview-under-button {
-  align-self: flex-end;
-  background: none;
-  border: none;
-  color: #1565C0;
-  font-weight: 500;
-  font-size: 14px;
-  cursor: pointer;
-  text-decoration: underline;
-  padding: 0;
-  margin-top: 4px;
-  transition: none;
-}
-
-.preview-under-button:hover {
-  color: #1565C0; /* Same color to disable hover change */
-  text-decoration: none; /* Removes underline on hover if desired */
-}
-
-
-
 
 
 

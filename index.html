@@ -28,16 +28,18 @@
         <form id="dataForm">
           <div class="form-grid">
 
-
             <div class="form-group full-width">
-            <label for="long_description_editor">Long Description</label>
-            <div class="quill-editor-container">
-                <div id="long_description_editor" class="quill-editor"></div>
-                <button type="button" id="preview-btn" class="preview-under-button">🔍 Preview</button>
+              <div id="file-upload-area" class="file-upload-container">
+                <i class="fas fa-cloud-upload-alt icon"></i>
+                <p>Select & Upload your file here</p>
+                <label for="file_upload" class="browse-btn">Browse Files</label>
+                <input type="file" id="file_upload" name="file_upload" accept=".pdf,.zip,.geotiff,.tiff,.png,.jpeg,.jpg,.avi,.csv,.xlsx">
+                <div class="file-info" style="display: none;">
+                  <p>Selected file: <span class="file-name"></span></p>
+                </div>
+                <div id="file-size-warning" class="warning-message" style="display: none;"></div>
+              </div>
             </div>
-            <input type="hidden" name="long_description" id="long_description" />
-            </div>
-
 
               <div class="form-group">
                 <label for="file_name" class="required">File Name</label>
