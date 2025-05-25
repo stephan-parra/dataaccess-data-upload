@@ -30,19 +30,17 @@ export async function uploadFileToS3MultiPart(partUrls, fileBlob, uploadId, over
   const perPartProgress = new Array(totalParts).fill(0);
   const totalSize = fileBlob.size;
 
-  // Sanity check
   const expectedParts = Math.ceil(fileBlob.size / chunkSize);
   if (partUrls.length < expectedParts) {
     throw new Error(`❌ Not enough presigned URLs. Expected ${expectedParts}, but got ${partUrls.length}`);
   }
 
-  // Setup UI containers
+  // UI references
   const progressContainer = document.getElementById('multi-part-progress-container');
   const statusText = document.getElementById('overall-progress-status');
   progressContainer.innerHTML = '';
   statusText.textContent = '';
 
-  // Create UI for each part
   function createPartProgressUI(partNumber) {
     const container = document.createElement('div');
     container.classList.add('multipart-entry');
@@ -63,10 +61,8 @@ export async function uploadFileToS3MultiPart(partUrls, fileBlob, uploadId, over
     container.appendChild(bar);
     progressContainer.appendChild(container);
 
-    return fill;
+    return { fill, container };
   }
-
-  const partUIRefs = Array.from({ length: totalParts }, (_, i) => createPartProgressUI(i + 1));
 
   function uploadPart(index) {
     return () => new Promise((resolve, reject) => {
@@ -77,17 +73,17 @@ export async function uploadFileToS3MultiPart(partUrls, fileBlob, uploadId, over
       const blob = fileBlob.slice(start, end);
       const partSize = blob.size;
 
-      const fillBar = partUIRefs[index];
+      const { fill, container } = createPartProgressUI(partNumber);
+
       const xhr = new XMLHttpRequest();
       abortUploadRef.current = xhr;
-
       xhr.open('PUT', url, true);
 
       xhr.upload.onprogress = (e) => {
         if (e.lengthComputable) {
           const percent = Math.round((e.loaded / partSize) * 100);
-          fillBar.style.width = `${percent}%`;
-          fillBar.textContent = `${percent}%`;
+          fill.style.width = `${percent}%`;
+          fill.textContent = `${percent}%`;
 
           perPartProgress[index] = e.loaded;
           const uploadedBytes = perPartProgress.reduce((a, b) => a + b, 0);
@@ -105,15 +101,29 @@ export async function uploadFileToS3MultiPart(partUrls, fileBlob, uploadId, over
           const etag = xhr.getResponseHeader('ETag');
           completedParts[index] = { PartNumber: partNumber, ETag: etag };
 
+          fill.style.width = '100%';
+          fill.textContent = 'Done';
+
+          setTimeout(() => {
+            container.remove();
+          }, 800);
+
           const finished = completedParts.filter(Boolean).length;
           statusText.textContent = `Uploaded ${finished} of ${totalParts} parts`;
+
           resolve();
         } else {
+          fill.style.backgroundColor = '#F44336';
+          container.classList.add('error');
           reject(new Error(`Failed part ${partNumber}`));
         }
       };
 
-      xhr.onerror = () => reject(new Error(`Failed part ${partNumber}`));
+      xhr.onerror = () => {
+        fill.style.backgroundColor = '#F44336';
+        container.classList.add('error');
+        reject(new Error(`Failed part ${partNumber}`));
+      };
 
       if (abortUploadRef.cancelled) {
         xhr.abort();
@@ -146,9 +156,8 @@ export async function uploadFileToS3MultiPart(partUrls, fileBlob, uploadId, over
   }
 
   const tasks = Array.from({ length: totalParts }, (_, i) => uploadPart(i));
-  await runWithConcurrencyLimit(tasks, 5); // Max 5 parallel uploads
+  await runWithConcurrencyLimit(tasks, 5); // Max 5 concurrent part uploads
 
-  // Finalize multipart
   const key = partUrls[0].split('?')[0].split('.com/')[1];
   const completeResponse = await fetch(COMPLETE_MULTIPART_UPLOAD_URL, {
     method: 'POST',
