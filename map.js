@@ -14,6 +14,11 @@ document.addEventListener('DOMContentLoaded', function () {
   const aucklandCoords = [-36.8485, 174.7633];
   const map = L.map('map').setView(aucklandCoords, 18);
 
+  function clonePolygon(polygon) {
+    const coords = polygon.getLatLngs();
+    return L.polygon(coords, polygon.options);
+  }
+
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     maxZoom: 19
@@ -42,58 +47,68 @@ document.addEventListener('DOMContentLoaded', function () {
   map.addControl(drawControl);
 
   // Map overlay logic
-  document.getElementById('expand-map-btn').addEventListener('click', () => {
+    document.getElementById('expand-map-btn').addEventListener('click', () => {
     document.getElementById('map-overlay').style.display = 'block';
 
     setTimeout(() => {
-      const expandedMap = L.map('map-expanded').setView(map.getCenter(), map.getZoom());
+        const expandedMap = L.map('map-expanded').setView(map.getCenter(), map.getZoom());
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; OpenStreetMap contributors',
         maxZoom: 19
-      }).addTo(expandedMap);
+        }).addTo(expandedMap);
 
-      const expandedItems = new L.FeatureGroup();
-      expandedMap.addLayer(expandedItems);
+        const expandedItems = new L.FeatureGroup();
+        expandedMap.addLayer(expandedItems);
 
-      const drawControl = new L.Control.Draw({
+        const drawControl = new L.Control.Draw({
         edit: { featureGroup: expandedItems },
         draw: {
-          polygon: {
-            allowIntersection: false,
-            showArea: true
-          },
-          polyline: false,
-          rectangle: false,
-          circle: false,
-          marker: false,
-          circlemarker: false
+            polygon: { allowIntersection: false, showArea: true },
+            polyline: false,
+            rectangle: false,
+            circle: false,
+            marker: false,
+            circlemarker: false
         }
-      });
-      expandedMap.addControl(drawControl);
+        });
+        expandedMap.addControl(drawControl);
 
-      expandedMap.on('draw:created', function (e) {
+        // If there's a polygon on the small map, copy it to the expanded map
+        if (drawnItems.getLayers().length > 0) {
+        const original = drawnItems.getLayers()[0];
+        const clone = clonePolygon(original);
+        expandedItems.addLayer(clone);
+        }
+
+        expandedMap.on('draw:created', function (e) {
         expandedItems.clearLayers();
         expandedItems.addLayer(e.layer);
 
         if (e.layer instanceof L.Polygon) {
-          const wkt = polygonToWKT(e.layer);
-          document.getElementById('wkt_output').value = wkt;
-          document.getElementById('wkt-validation-error').style.display = 'none';
-          document.getElementById('wkt_output').classList.remove('error');
+            const wkt = polygonToWKT(e.layer);
+            document.getElementById('wkt_output').value = wkt;
+            document.getElementById('wkt-validation-error').style.display = 'none';
+            document.getElementById('wkt_output').classList.remove('error');
         }
-      });
+        });
 
-      document.getElementById('close-map-btn').addEventListener('click', () => {
+        document.getElementById('close-map-btn').addEventListener('click', () => {
+        // Sync back to main map
+        drawnItems.clearLayers();
+        if (expandedItems.getLayers().length > 0) {
+            const expandedPolygon = expandedItems.getLayers()[0];
+            const clone = clonePolygon(expandedPolygon);
+            drawnItems.addLayer(clone);
+        }
+
         expandedMap.remove();
         document.getElementById('map-overlay').style.display = 'none';
-
-        // Reset container for next time
-        const container = document.getElementById('map-expanded');
-        container.innerHTML = '';
-      });
+        document.getElementById('map-expanded').innerHTML = '';
+        });
     }, 100);
-  });
+    });
+
 
   // WKT error display
   const wktTextarea = document.getElementById('wkt_output');
