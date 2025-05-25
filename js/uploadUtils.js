@@ -35,7 +35,7 @@ export async function uploadFileToS3MultiPart(partUrls, fileBlob, uploadId, over
     throw new Error(`❌ Not enough presigned URLs. Expected ${expectedParts}, but got ${partUrls.length}`);
   }
 
-  // UI references
+  // UI setup
   const progressContainer = document.getElementById('multi-part-progress-container');
   const statusText = document.getElementById('overall-progress-status');
   progressContainer.innerHTML = '';
@@ -61,7 +61,7 @@ export async function uploadFileToS3MultiPart(partUrls, fileBlob, uploadId, over
     container.appendChild(bar);
     progressContainer.appendChild(container);
 
-    return { fill, container };
+    return { fill, container, label };
   }
 
   function uploadPart(index) {
@@ -73,7 +73,7 @@ export async function uploadFileToS3MultiPart(partUrls, fileBlob, uploadId, over
       const blob = fileBlob.slice(start, end);
       const partSize = blob.size;
 
-      const { fill, container } = createPartProgressUI(partNumber);
+      const { fill, container, label } = createPartProgressUI(partNumber);
 
       const xhr = new XMLHttpRequest();
       abortUploadRef.current = xhr;
@@ -110,9 +110,9 @@ export async function uploadFileToS3MultiPart(partUrls, fileBlob, uploadId, over
 
           const finished = completedParts.filter(Boolean).length;
           statusText.textContent = `Uploaded ${finished} of ${totalParts} parts`;
-
           resolve();
         } else {
+          label.textContent = `Part ${partNumber} failed`;
           fill.style.backgroundColor = '#F44336';
           container.classList.add('error');
           reject(new Error(`Failed part ${partNumber}`));
@@ -120,6 +120,7 @@ export async function uploadFileToS3MultiPart(partUrls, fileBlob, uploadId, over
       };
 
       xhr.onerror = () => {
+        label.textContent = `Part ${partNumber} failed`;
         fill.style.backgroundColor = '#F44336';
         container.classList.add('error');
         reject(new Error(`Failed part ${partNumber}`));
@@ -135,28 +136,32 @@ export async function uploadFileToS3MultiPart(partUrls, fileBlob, uploadId, over
     });
   }
 
-  async function runWithConcurrencyLimit(tasks, limit) {
-    const results = [];
-    let index = 0;
-
-    const workers = new Array(limit).fill(null).map(async () => {
-      while (index < tasks.length) {
-        const current = index++;
+  function withRetries(taskFactory, retries = 3, delay = 1000) {
+    return async function retryWrapper() {
+      for (let attempt = 1; attempt <= retries; attempt++) {
         try {
-          const result = await tasks[current]();
-          results[current] = result;
+          return await taskFactory();
         } catch (err) {
-          throw err;
+          if (attempt === retries) throw err;
+          console.warn(`Retrying part (attempt ${attempt})...`);
+
+          // Update UI to reflect retry attempt
+          const partMatch = err.message.match(/part (\d+)/i);
+          if (partMatch) {
+            const partNumber = partMatch[1];
+            const label = [...document.querySelectorAll('.multipart-part')]
+              .find(el => el.textContent.includes(`Part ${partNumber}`));
+            if (label) label.textContent = `Retrying part ${partNumber} (attempt ${attempt + 1})...`;
+          }
+
+          await new Promise(res => setTimeout(res, delay * attempt)); // exponential backoff
         }
       }
-    });
-
-    await Promise.all(workers);
-    return results;
+    };
   }
 
-  const tasks = Array.from({ length: totalParts }, (_, i) => uploadPart(i));
-  await runWithConcurrencyLimit(tasks, 5); // Max 5 concurrent part uploads
+  const tasks = Array.from({ length: totalParts }, (_, i) => withRetries(uploadPart(i), 3, 1000));
+  await runWithConcurrencyLimit(tasks, 5); // Max 5 parallel uploads
 
   const key = partUrls[0].split('?')[0].split('.com/')[1];
   const completeResponse = await fetch(COMPLETE_MULTIPART_UPLOAD_URL, {
@@ -170,4 +175,24 @@ export async function uploadFileToS3MultiPart(partUrls, fileBlob, uploadId, over
   overlayProgress.style.width = '100%';
   overlayProgress.textContent = '100%';
   overlayText.textContent = 'Upload complete. Finalizing...';
+}
+
+async function runWithConcurrencyLimit(tasks, limit) {
+  const results = [];
+  let index = 0;
+
+  const workers = new Array(limit).fill(null).map(async () => {
+    while (index < tasks.length) {
+      const current = index++;
+      try {
+        const result = await tasks[current]();
+        results[current] = result;
+      } catch (err) {
+        throw err;
+      }
+    }
+  });
+
+  await Promise.all(workers);
+  return results;
 }

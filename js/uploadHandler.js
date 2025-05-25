@@ -368,6 +368,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       const previewFile = previewInput?.files[0];
       if (previewFile && uploadResult.previewPreSignedUrl) {
+        overlayText.textContent = `Uploading preview file (${previewFile.name})...`;
+        overlayProgress.style.transition = 'width 0.5s ease';
+        overlayProgress.style.width = '0%';
+        overlayProgress.textContent = '0%';
+
         await uploadFileToS3WithProgress(
           uploadResult.previewPreSignedUrl,
           previewFile,
@@ -375,6 +380,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           abortUploadRef
         );
       }
+
 
       overlayText.textContent = 'Upload complete.';
       overlayProgress.style.width = '100%';
