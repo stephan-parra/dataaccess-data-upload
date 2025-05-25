@@ -1,136 +1,150 @@
-// Initialize the map after the page has loaded
+function polygonToWKT(polygon) {
+  const coords = polygon.getLatLngs()[0];
+  let wkt = "POLYGON((";
+  coords.forEach((coord, i) => {
+    wkt += `${coord.lng} ${coord.lat}${i < coords.length - 1 ? ', ' : ''}`;
+  });
+  if (coords.length > 0) {
+    wkt += `, ${coords[0].lng} ${coords[0].lat}`;
+  }
+  return wkt + "))";
+}
+
 document.addEventListener('DOMContentLoaded', function () {
-    // Auckland, New Zealand coordinates
-    const aucklandCoords = [-36.8485, 174.7633];
+  const aucklandCoords = [-36.8485, 174.7633];
+  const map = L.map('map').setView(aucklandCoords, 18);
 
-    // Create the map centered on Auckland with zoom level 12
-    const map = L.map('map').setView(aucklandCoords, 18);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    maxZoom: 19
+  }).addTo(map);
 
-    // Add OpenStreetMap tile layer
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        maxZoom: 19
-    }).addTo(map);
+  const drawnItems = new L.FeatureGroup();
+  map.addLayer(drawnItems);
 
-    // Initialize the FeatureGroup to store editable layers
-    const drawnItems = new L.FeatureGroup();
-    map.addLayer(drawnItems);
-
-    // Initialize the draw control and pass it the FeatureGroup of editable layers
-    const drawControl = new L.Control.Draw({
-        edit: {
-            featureGroup: drawnItems,
-            poly: {
-                allowIntersection: false
-            }
-        },
-        draw: {
-            polygon: {
-                allowIntersection: false,
-                showArea: true
-            },
-            polyline: false,
-            rectangle: false,
-            circle: false,
-            marker: false,
-            circlemarker: false
-        }
-    });
-    map.addControl(drawControl);
-
-    // Add validation message below the WKT textarea
-    const wktTextarea = document.getElementById('wkt_output');
-    const validationMsg = document.createElement('div');
-    validationMsg.className = 'validation-error';
-    validationMsg.id = 'wkt-validation-error';
-    validationMsg.textContent = 'Please draw a polygon on the map to define the area of interest';
-    wktTextarea.parentNode.appendChild(validationMsg);
-
-    // Function to convert Leaflet polygon to WKT format
-    function polygonToWKT(polygon) {
-        const coords = polygon.getLatLngs()[0];
-        let wkt = "POLYGON((";
-
-        // Add each coordinate to the WKT string
-        coords.forEach((coord, index) => {
-            wkt += `${coord.lng} ${coord.lat}`;
-            if (index < coords.length - 1) {
-                wkt += ", ";
-            }
-        });
-
-        // Close the polygon by adding the first point again
-        if (coords.length > 0) {
-            wkt += `, ${coords[0].lng} ${coords[0].lat}`;
-        }
-
-        wkt += "))";
-        return wkt;
+  const drawControl = new L.Control.Draw({
+    edit: {
+      featureGroup: drawnItems,
+      poly: { allowIntersection: false }
+    },
+    draw: {
+      polygon: {
+        allowIntersection: false,
+        showArea: true
+      },
+      polyline: false,
+      rectangle: false,
+      circle: false,
+      marker: false,
+      circlemarker: false
     }
+  });
+  map.addControl(drawControl);
 
-    // Event handler for when a new shape is created
-    map.on('draw:created', function (e) {
-        const layer = e.layer;
+  // Map overlay logic
+  document.getElementById('expand-map-btn').addEventListener('click', () => {
+    document.getElementById('map-overlay').style.display = 'block';
 
-        // Clear existing layers before adding the new one (only allow one polygon)
-        drawnItems.clearLayers();
+    setTimeout(() => {
+      const expandedMap = L.map('map-expanded').setView(map.getCenter(), map.getZoom());
 
-        // Add the layer to the feature group
-        drawnItems.addLayer(layer);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors',
+        maxZoom: 19
+      }).addTo(expandedMap);
 
-        // Convert the polygon to WKT and display it
-        if (layer instanceof L.Polygon) {
-            const wkt = polygonToWKT(layer);
-            document.getElementById('wkt_output').value = wkt;
+      const expandedItems = new L.FeatureGroup();
+      expandedMap.addLayer(expandedItems);
 
-            // Hide validation error if it was shown
-            document.getElementById('wkt-validation-error').style.display = 'none';
-            document.getElementById('wkt_output').classList.remove('error');
+      const drawControl = new L.Control.Draw({
+        edit: { featureGroup: expandedItems },
+        draw: {
+          polygon: {
+            allowIntersection: false,
+            showArea: true
+          },
+          polyline: false,
+          rectangle: false,
+          circle: false,
+          marker: false,
+          circlemarker: false
         }
-    });
+      });
+      expandedMap.addControl(drawControl);
 
-    // Event handler for when a shape is edited
-    map.on('draw:edited', function (e) {
-        const layers = e.layers;
+      expandedMap.on('draw:created', function (e) {
+        expandedItems.clearLayers();
+        expandedItems.addLayer(e.layer);
 
-        // Update the WKT for the edited polygon
-        layers.eachLayer(function (layer) {
-            if (layer instanceof L.Polygon) {
-                const wkt = polygonToWKT(layer);
-                document.getElementById('wkt_output').value = wkt;
-            }
-        });
-    });
-
-    // Event handler for when a shape is deleted
-    map.on('draw:deleted', function (e) {
-        // Clear the WKT text area if all shapes are deleted
-        if (drawnItems.getLayers().length === 0) {
-            document.getElementById('wkt_output').value = '';
-            // Show validation error since polygon is required
-            document.getElementById('wkt-validation-error').style.display = 'block';
-            document.getElementById('wkt_output').classList.add('error');
+        if (e.layer instanceof L.Polygon) {
+          const wkt = polygonToWKT(e.layer);
+          document.getElementById('wkt_output').value = wkt;
+          document.getElementById('wkt-validation-error').style.display = 'none';
+          document.getElementById('wkt_output').classList.remove('error');
         }
+      });
+
+      document.getElementById('close-map-btn').addEventListener('click', () => {
+        expandedMap.remove();
+        document.getElementById('map-overlay').style.display = 'none';
+
+        // Reset container for next time
+        const container = document.getElementById('map-expanded');
+        container.innerHTML = '';
+      });
+    }, 100);
+  });
+
+  // WKT error display
+  const wktTextarea = document.getElementById('wkt_output');
+  const validationMsg = document.createElement('div');
+  validationMsg.className = 'validation-error';
+  validationMsg.id = 'wkt-validation-error';
+  validationMsg.textContent = 'Please draw a polygon on the map to define the area of interest';
+  wktTextarea.parentNode.appendChild(validationMsg);
+
+  // Main map draw events
+  map.on('draw:created', function (e) {
+    const layer = e.layer;
+    drawnItems.clearLayers();
+    drawnItems.addLayer(layer);
+
+    if (layer instanceof L.Polygon) {
+      const wkt = polygonToWKT(layer);
+      document.getElementById('wkt_output').value = wkt;
+      document.getElementById('wkt-validation-error').style.display = 'none';
+      document.getElementById('wkt_output').classList.remove('error');
+    }
+  });
+
+  map.on('draw:edited', function (e) {
+    e.layers.eachLayer(function (layer) {
+      if (layer instanceof L.Polygon) {
+        const wkt = polygonToWKT(layer);
+        document.getElementById('wkt_output').value = wkt;
+      }
     });
+  });
 
-    // Form submission validation
-    document.getElementById('dataForm').addEventListener('submit', function (e) {
-        // Check if a polygon has been drawn
-        if (drawnItems.getLayers().length === 0) {
-            e.preventDefault(); // Prevent form submission
+  map.on('draw:deleted', function () {
+    if (drawnItems.getLayers().length === 0) {
+      document.getElementById('wkt_output').value = '';
+      document.getElementById('wkt-validation-error').style.display = 'block';
+      document.getElementById('wkt_output').classList.add('error');
+    }
+  });
 
-            // Show validation error
-            document.getElementById('wkt-validation-error').style.display = 'block';
-            document.getElementById('wkt_output').classList.add('error');
+  document.getElementById('dataForm').addEventListener('submit', function (e) {
+    if (drawnItems.getLayers().length === 0) {
+      e.preventDefault();
+      document.getElementById('wkt-validation-error').style.display = 'block';
+      document.getElementById('wkt_output').classList.add('error');
 
-            // Scroll to the map section
-            document.getElementById('map').scrollIntoView({ behavior: 'smooth' });
-
-            // Highlight the map to indicate it needs attention
-            map.getContainer().classList.add('required-polygon', 'error');
-            setTimeout(() => {
-                map.getContainer().classList.remove('error');
-            }, 2000);
-        }
-    });
+      document.getElementById('map').scrollIntoView({ behavior: 'smooth' });
+      map.getContainer().classList.add('required-polygon', 'error');
+      setTimeout(() => {
+        map.getContainer().classList.remove('error');
+      }, 2000);
+    }
+  });
 });
