@@ -1,5 +1,3 @@
-import { addGeocoder } from './geocoder.js';
-
 // Initialize the map after the page has loaded
 document.addEventListener('DOMContentLoaded', function () {
     // Auckland, New Zealand coordinates
