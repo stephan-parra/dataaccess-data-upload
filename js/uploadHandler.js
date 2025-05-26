@@ -355,6 +355,21 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
 
+    const priceField = document.getElementById('data_resell_price');
+    const pricePattern = /^(0|[1-9]\d*)(\.\d{1,2})?$/;
+
+    if (!pricePattern.test(priceField.value)) {
+      showError('Please enter a valid price (e.g. 0, 1.20, 99, 200.19)', messageContainer);
+      priceField.classList.add('error-border');
+      priceField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      submitBtn.disabled = false;
+      resetBtn.disabled = false;
+      return;
+    } else {
+      priceField.classList.remove('error-border');
+    }
+
+
     overlay.style.display = 'flex';
     cancelBtn.style.display = 'inline-block';
     overlayText.textContent = 'Uploading file...';

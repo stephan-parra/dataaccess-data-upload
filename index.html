@@ -117,8 +117,17 @@
             </div>
 
             <div class="form-group">
-              <label for="price" class="required">Price</label>
-              <input type="text" id="data_resell_price" name="data_resell_price" placeholder="(e.g. 10.99). Enter 0 for a free product" pattern="^\d*(\.\d{0,2})?$" required />
+            <label for="price" class="required">Price</label>
+            <input
+                type="text"
+                id="data_resell_price"
+                name="data_resell_price"
+                placeholder="e.g. 0, 199.99"
+                pattern="^(0|[1-9]\d*)(\.\d{1,2})?$"
+                inputmode="decimal"
+                required
+                title="Please enter a valid price (e.g. 0, 1.20, 99, 200.19)"
+            />
             </div>
 
             <div class="form-group">
