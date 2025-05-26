@@ -126,9 +126,11 @@
               <input type="text" id="tags" name="tags" />
             </div>
 
-            <div class="form-group">
-              <label for="data_owner_id" class="required">Data Owner ID</label>
-              <input type="text" id="data_owner_id" name="data_owner_id" required />
+            <div class="form-group" id="data-owner-group">
+            <label for="data_owner_id" class="required">Data Owner ID</label>
+            <select id="data_owner_id" name="data_owner_id" required>
+                <option value="">Loading Data Owners...</option>
+            </select>
             </div>
 
             <div class="form-group full-width">
