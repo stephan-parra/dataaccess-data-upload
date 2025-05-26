@@ -5,12 +5,12 @@ import { buildUploadPayload } from './payloadBuilder.js';
 import { uploadFileToS3WithProgress, uploadFileToS3MultiPart } from './uploadUtils.js';
 import { showError, showSuccess } from './messageUI.js';
 
-async function setupDataOwnerDropdown() {
+async function setupDataOwnerDropdown(config) {
   const group = document.getElementById('data-owner-group');
   const select = document.getElementById('data_owner_id');
 
   try {
-    const response = await fetch('https://b9g3naczla.execute-api.ap-southeast-2.amazonaws.com/v1/dataaccess/lookupdata?key=PRODUCTOWNERS');
+    const response = await fetch(config.DATA_OWNERS_API_URL);
     const owners = await response.json();
 
     select.innerHTML = '<option value="">Select a Data Owner</option>';
@@ -21,7 +21,6 @@ async function setupDataOwnerDropdown() {
       select.appendChild(option);
     });
 
-    // Initialize Choices.js for searchable dropdown
     new Choices(select, {
       searchEnabled: true,
       itemSelectText: '',
@@ -31,9 +30,8 @@ async function setupDataOwnerDropdown() {
 
   } catch (error) {
     console.error('❌ Failed to load Data Owners:', error);
-
-    // Remove the dropdown and add a fallback manual input
     select.remove();
+
     const fallbackInput = document.createElement('input');
     fallbackInput.type = 'text';
     fallbackInput.id = 'data_owner_id';
@@ -41,10 +39,10 @@ async function setupDataOwnerDropdown() {
     fallbackInput.required = true;
     fallbackInput.placeholder = 'Enter Data Owner ID manually';
     fallbackInput.classList.add('manual-region-input');
+
     group.appendChild(fallbackInput);
   }
 }
-
 
 document.addEventListener('DOMContentLoaded', async () => {
   // ✅ Restrict Captured Date to today or earlier
@@ -63,8 +61,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
   
   const config = await loadConfig();
+  await setupDataOwnerDropdown(config);
   // await populateRegionDropdown(config);
-  await setupDataOwnerDropdown();
+
 
   function fetchWithTimeout(url, timeout = 3000) {
     return Promise.race([
