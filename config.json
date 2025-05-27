@@ -1,8 +1,8 @@
 {
-  "UPLOAD_API_URL": "https://cors-anywhere.herokuapp.com/https://b9g3naczla.execute-api.ap-southeast-2.amazonaws.com/v1/dataaccess/upload",
-  "COMPLETE_MULTIPART_UPLOAD_URL": "https://cors-anywhere.herokuapp.com/https://b9g3naczla.execute-api.ap-southeast-2.amazonaws.com/v1/dataaccess/completemultipartupload",
-  "REGION_LOOKUP_URL": "https://cors-anywhere.herokuapp.com/https://b9g3naczla.execute-api.ap-southeast-2.amazonaws.com/v1/dataaccess/lookupdata?key=CountryRegionCode",
-  "DATA_OWNERS_API_URL": "https://cors-anywhere.herokuapp.com/https://b9g3naczla.execute-api.ap-southeast-2.amazonaws.com/v1/dataaccess/lookupdata?key=PRODUCTOWNERS",
+  "UPLOAD_API_URL": "https://b9g3naczla.execute-api.ap-southeast-2.amazonaws.com/v1/dataaccess/upload",
+  "COMPLETE_MULTIPART_UPLOAD_URL": "https://b9g3naczla.execute-api.ap-southeast-2.amazonaws.com/v1/dataaccess/completemultipartupload",
+  "REGION_LOOKUP_URL": "https://b9g3naczla.execute-api.ap-southeast-2.amazonaws.com/v1/dataaccess/lookupdata?key=CountryRegionCode",
+  "DATA_OWNERS_API_URL": "https://b9g3naczla.execute-api.ap-southeast-2.amazonaws.com/v1/dataaccess/lookupdata?key=PRODUCTOWNERS",
   "OIDC_AUTHORITY": "https://usmi.peldev.net/sharedservices/sso",
   "OIDC_CLIENT_ID": "DataAccess_Public_Client",
   "OIDC_REDIRECT_URI_PATH": "/dataaccess-data-upload/callback.html",
