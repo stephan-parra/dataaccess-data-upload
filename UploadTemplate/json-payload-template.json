@@ -1,0 +1,16 @@
+{
+  "DataOwnerId": "#dataownerid#",
+  "FileName": "#filename#",
+  "PreviewFile": "#previewfile#",
+  "FileSize": "#filesize#",
+  "IsMultiPartUpload": "#ismultipartupload#",
+  "ProductName": "#productname#",
+  "ShortDescription": "#shortdescription#",
+  "LongDescription": "#longdescription#",
+  "DateDataCaptured": "#datedatacaptured#",
+  "DateDataExpired": "#datedataexpired#",
+  "DataFormatType": "#dataformattype#",
+  "Tags": ["#tag1#", "#tag2#", "#tag3#", "#tag4#"],
+  "DataResellPrice": "#dataresellprice#",
+  "DataGeoShape": "#datageoshape#"
+}
