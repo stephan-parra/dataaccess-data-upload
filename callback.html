@@ -36,16 +36,13 @@
 
     async function runAuthentication() {
       try {
-        //const config = await fetch(window.location.origin + '/dataaccess-data-upload/config.json')
-        const config = await fetch('./config.json')
+        const config = await fetch(window.location.origin + '/dataaccess-data-upload/config.json')
           .then(res => res.json());
-
-        const baseUrl = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, '/');
 
         const userManager = new UserManager({
           authority: config.OIDC_AUTHORITY,
           client_id: config.OIDC_CLIENT_ID,
-          redirect_uri: baseUrl + config.OIDC_REDIRECT_URI_PATH,
+          redirect_uri: window.location.origin + config.OIDC_REDIRECT_URI_PATH,
           response_type: 'code',
           scope: config.OIDC_SCOPE
         });

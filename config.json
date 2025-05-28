@@ -5,7 +5,7 @@
   "DATA_OWNERS_API_URL": "https://mifctbkjnf.execute-api.ap-southeast-2.amazonaws.com/v1/dataaccess/lookupdata?key=PRODUCTOWNERS",
   "OIDC_AUTHORITY": "https://usmi.peldev.net/sharedservices/sso",
   "OIDC_CLIENT_ID": "DataAccess_Public_Client",
-  "OIDC_REDIRECT_URI_PATH": "/callback.html",
-  "OIDC_POST_LOGOUT_URI_PATH": "/logout.html",
+  "OIDC_REDIRECT_URI_PATH": "/dataaccess-data-upload/callback.html",
+  "OIDC_POST_LOGOUT_URI_PATH": "/dataaccess-data-upload/logout.html",
   "OIDC_SCOPE": "openid profile email"
 }
