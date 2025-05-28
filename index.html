@@ -229,7 +229,8 @@
   import { UserManager } from 'https://cdn.jsdelivr.net/npm/oidc-client-ts/+esm';
 
   async function setupUserMenu() {
-    const config = await fetch(window.location.origin + '/dataaccess-data-upload/config.json')
+    //const config = await fetch(window.location.origin + '/dataaccess-data-upload/config.json')
+    const config = await fetch('./config.json')
       .then(res => res.json());
 
     const userManager = new UserManager({
