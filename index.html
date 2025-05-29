@@ -229,13 +229,14 @@
   import { UserManager } from 'https://cdn.jsdelivr.net/npm/oidc-client-ts/+esm';
 
   async function setupUserMenu() {
-    const config = await fetch(window.location.origin + '/dataaccess-data-upload/config.json')
-      .then(res => res.json());
+    const baseUrl = new URL('.', import.meta.url);
+    const config = await fetch(new URL('config.json', baseUrl)).then(res => res.json());
+
 
     const userManager = new UserManager({
       authority: config.OIDC_AUTHORITY,
       client_id: config.OIDC_CLIENT_ID,
-      redirect_uri: window.location.origin + config.OIDC_REDIRECT_URI_PATH,
+      redirect_uri: new URL(config.OIDC_REDIRECT_URI_PATH, baseUrl).href,
       response_type: 'code',
       scope: config.OIDC_SCOPE,
       post_logout_redirect_uri: window.location.origin + config.OIDC_POST_LOGOUT_URI_PATH
