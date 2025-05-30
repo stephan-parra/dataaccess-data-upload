@@ -255,8 +255,7 @@
     });
 
     logoutBtn.addEventListener('click', () => {
-      sessionStorage.clear();
-      userManager.signoutRedirect();
+      userManager.signoutRedirect(); // Let the redirect occur before clearing
     });
 
     // Decode token for display
