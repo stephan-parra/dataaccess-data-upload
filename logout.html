@@ -52,6 +52,11 @@
   </style>
 </head>
 <body>
+  <script type="module">
+    import { ensureAuthenticated } from './authCheck.js';
+    ensureAuthenticated();
+  </script>
+
   <div class="logout-container">
     <h1>You are now logged out</h1>
     <p>If you'd like to log in again, click the button below.</p>

@@ -5,12 +5,33 @@ import { buildUploadPayload } from './payloadBuilder.js';
 import { uploadFileToS3WithProgress, uploadFileToS3MultiPart } from './uploadUtils.js';
 import { showError, showSuccess } from './messageUI.js';
 
+import { UserManager } from 'https://cdn.jsdelivr.net/npm/oidc-client-ts/+esm';
+
+async function getAccessToken() {
+  const baseUrl = new URL('.', import.meta.url);
+  const config = await fetch(new URL('config.json', baseUrl)).then(res => res.json());
+  const userManager = new UserManager({
+    authority: config.OIDC_AUTHORITY,
+    client_id: config.OIDC_CLIENT_ID,
+    redirect_uri: new URL(config.OIDC_REDIRECT_URI_PATH, baseUrl).href,
+    response_type: 'code',
+    scope: config.OIDC_SCOPE
+  });
+  const user = await userManager.getUser();
+  return user?.access_token;
+}
+
+
 async function setupDataOwnerDropdown(config) {
   const group = document.getElementById('data-owner-group');
   const select = document.getElementById('data_owner_id');
 
   try {
-    const response = await fetch(config.DATA_OWNERS_API_URL);
+    const token = await getAccessToken();
+    const response = await fetch(config.DATA_OWNERS_API_URL, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+
     const owners = await response.json();
 
     select.innerHTML = '<option value="">Select a Data Owner</option>';
@@ -73,89 +94,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       )
     ]);
   }
-
-/*
-  async function populateRegionDropdown(config, autoSelect = true) {
-    const dropdown = document.getElementById('data_region');
-    if (!dropdown) return;
-
-    dropdown.innerHTML = `<option value="">Loading regions...</option>`;
-
-    try {
-      const response = await fetchWithTimeout(config.REGION_LOOKUP_URL, 3000);
-      const regions = await response.json();
-
-      const sortedRegions = Object.entries(regions)
-        .filter(([code]) => code !== '#')
-        .sort((a, b) => a[1].localeCompare(b[1]));
-
-      dropdown.innerHTML = `<option value="">Select a region</option>`;
-      for (const [code, name] of sortedRegions) {
-        const option = document.createElement('option');
-        option.value = code;
-        option.textContent = name;
-        dropdown.appendChild(option);
-      }
-
-      // Apply Choices.js
-      const choices = new Choices(dropdown, {
-        searchEnabled: true,
-        itemSelectText: '',
-        placeholderValue: 'Select a region',
-        shouldSort: false
-      });
-
-      // ✅ Try to auto-select region based on time zone
-      if (autoSelect) {
-        const timeZone = Intl?.DateTimeFormat?.().resolvedOptions?.().timeZone;
-        const inferredRegion = guessRegionFromTimeZone(timeZone);
-        if (inferredRegion && regions[inferredRegion]) {
-          dropdown.value = inferredRegion;
-          choices.setChoiceByValue(inferredRegion);
-        }
-      }
-
-    } catch (err) {
-        console.error('Failed to load regions:', err);
-        const container = dropdown.parentElement;
-
-        // Remove the select dropdown
-        if (dropdown) dropdown.remove();
-
-        // Create a fallback input field
-        const fallbackInput = document.createElement('input');
-        fallbackInput.type = 'text';
-        fallbackInput.id = 'data_region';
-        fallbackInput.name = 'data_region';
-        fallbackInput.required = true;
-        fallbackInput.placeholder = 'Enter region manually';
-        fallbackInput.classList.add('manual-region-input');
-
-        container.appendChild(fallbackInput);
-      }
-  }
-
-  function guessRegionFromTimeZone(timeZone) {
-    if (!timeZone || typeof timeZone !== 'string') return null;
-
-    const tzToRegionMap = {
-      'Australia/Sydney': 'AU_NSW',
-      'Australia/Melbourne': 'AU_VIC',
-      'Australia/Perth': 'AU_WA',
-      'Australia/Brisbane': 'AU_QLD',
-      'Pacific/Auckland': 'NZ',
-      'America/New_York': 'US_NY',
-      'America/Los_Angeles': 'US_CA',
-      'America/Chicago': 'US_TX',
-      'America/Toronto': 'CA_ON',
-      'Europe/London': 'UK',
-      'Europe/Dublin': 'IE',
-      'Asia/Singapore': 'SG',
-    };
-
-    return tzToRegionMap[timeZone] || null;
-  }
-  */
 
   const form = document.getElementById('dataForm');
 
@@ -393,11 +331,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     const payload = buildUploadPayload(formData, file, previewInput);
 
     try {
+      const token = await getAccessToken();
       const apiResponse = await fetch(config.UPLOAD_API_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify(payload)
       });
+
 
       if (!apiResponse.ok) throw new Error(`UploadAPI error: ${apiResponse.statusText}`);
       const uploadResult = await apiResponse.json();

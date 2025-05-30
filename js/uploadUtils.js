@@ -164,9 +164,13 @@ export async function uploadFileToS3MultiPart(partUrls, fileBlob, uploadId, over
   await runWithConcurrencyLimit(tasks, 5); // Max 5 parallel uploads
 
   const key = partUrls[0].split('?')[0].split('.com/')[1];
+  const token = await getAccessToken();
   const completeResponse = await fetch(COMPLETE_MULTIPART_UPLOAD_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
     body: JSON.stringify({ UploadId: uploadId, Key: key, Parts: completedParts })
   });
 

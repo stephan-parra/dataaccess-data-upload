@@ -6,12 +6,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>DataAccess Portal - Upload</title>
 
-    <script>
-    const token = sessionStorage.getItem('access_token');
-    if (!token) {
-        window.location.href = 'login.html';
-    }
-    </script>
+  <script type="module">
+    import { ensureAuthenticated } from './authCheck.js';
+    ensureAuthenticated();
+  </script>
 
 
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
