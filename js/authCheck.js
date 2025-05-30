@@ -3,7 +3,7 @@ import { UserManager } from 'https://cdn.jsdelivr.net/npm/oidc-client-ts/+esm';
 
 export async function ensureAuthenticated() {
   const baseUrl = new URL('.', import.meta.url);
-  const config = await fetch(new URL('config.json', baseUrl)).then(res => res.json());
+  const config = await fetch(new URL('../config.json', import.meta.url)).then(res => res.json());
 
   const userManager = new UserManager({
     authority: config.OIDC_AUTHORITY,
